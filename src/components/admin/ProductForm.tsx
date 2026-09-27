@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { uploadImage } from '@/utils/storage'
 import { Product, ProductSize, Category } from '@/types'
+import { Trash2 } from 'lucide-react'
 
 interface ProductFormProps {
   initialData?: Product
@@ -65,6 +66,14 @@ export function ProductForm({ initialData }: ProductFormProps) {
       alert('Erro ao fazer upload da imagem.')
     }
     setLoading(false)
+  }
+
+  const handleRemoveImage = (idxToRemove: number) => {
+    if (
+      window.confirm('Tem certeza que deseja excluir esta foto do produto?')
+    ) {
+      setImages(images.filter((_, i) => i !== idxToRemove))
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -248,10 +257,11 @@ export function ProductForm({ initialData }: ProductFormProps) {
               />
               <button
                 type="button"
-                onClick={() => setImages(images.filter((_, i) => i !== idx))}
-                className="absolute top-2 right-2 bg-red-500/90 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                onClick={() => handleRemoveImage(idx)}
+                className="absolute top-2 right-2 bg-red-500/90 text-white rounded-md w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600"
+                title="Excluir foto"
               >
-                &times;
+                <Trash2 size={16} />
               </button>
             </div>
           ))}
