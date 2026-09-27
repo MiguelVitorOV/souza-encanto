@@ -41,7 +41,7 @@ export default function AdminDashboard() {
   ) => {
     const { error } = await supabase
       .from('products')
-      .update({ [field]: !currentValue })
+      .update({ [field]: !currentValue } as any)
       .eq('id', id)
 
     if (!error) {

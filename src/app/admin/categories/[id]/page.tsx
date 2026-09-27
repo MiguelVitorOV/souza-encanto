@@ -16,7 +16,7 @@ export default function EditCategory() {
       const { data } = await supabase
         .from('categories')
         .select('*')
-        .eq('id', params.id)
+        .eq('id', params.id as string)
         .single()
       if (data) setCategory(data)
     }

@@ -28,6 +28,7 @@ export interface Database {
           slug?: string
           created_at?: string
         }
+        Relationships: []
       }
       products: {
         Row: {
@@ -36,7 +37,7 @@ export interface Database {
           description: string | null
           price: number
           category_id: string | null
-          sizes: Json
+          sizes: any
           images: string[]
           is_active: boolean
           is_out_of_stock: boolean
@@ -48,7 +49,7 @@ export interface Database {
           description?: string | null
           price: number
           category_id?: string | null
-          sizes?: Json
+          sizes?: any
           images?: string[]
           is_active?: boolean
           is_out_of_stock?: boolean
@@ -60,12 +61,21 @@ export interface Database {
           description?: string | null
           price?: number
           category_id?: string | null
-          sizes?: Json
+          sizes?: any
           images?: string[]
           is_active?: boolean
           is_out_of_stock?: boolean
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'products_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'categories'
+            referencedColumns: ['id']
+          }
+        ]
       }
       clients: {
         Row: {
@@ -89,6 +99,7 @@ export interface Database {
           phone_suffix?: string | null
           created_at?: string
         }
+        Relationships: []
       }
       client_interests: {
         Row: {
@@ -115,6 +126,22 @@ export interface Database {
           status?: string
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'client_interests_client_id_fkey'
+            columns: ['client_id']
+            isOneToOne: false
+            referencedRelation: 'clients'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'client_interests_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          }
+        ]
       }
     }
     Views: {
