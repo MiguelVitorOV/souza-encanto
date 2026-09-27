@@ -258,7 +258,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
               <button
                 type="button"
                 onClick={() => handleRemoveImage(idx)}
-                className="absolute top-2 right-2 bg-red-500/90 text-white rounded-md w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600"
+                className="absolute top-2 right-2 bg-red-500/90 text-white rounded-md w-8 h-8 flex items-center justify-center opacity-100 transition-opacity shadow-lg hover:bg-red-600"
                 title="Excluir foto"
               >
                 <Trash2 size={16} />
