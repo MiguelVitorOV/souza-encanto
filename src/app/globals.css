@@ -1,22 +1,26 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* Cores extraídas da Identidade Visual Souza Encanto */
+  --color-brand-50: #fcf5f3; /* Fundo creme bem claro */
+  --color-brand-100: #f7eae6;
+  --color-brand-200: #f0d5cd;
+  --color-brand-300: #e6c5bc;
+  --color-brand-400: #dda99b; /* Tom rosado médio das folhas */
+  --color-brand-500: #c48e7f;
+  --color-brand-600: #a87163;
+  --color-brand-700: #8c5a56; /* Cor base do logo/texto */
+  --color-brand-800: #744845; /* Logo texto (tom mais fechado) */
+  --color-brand-900: #5c3835;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-kudryashev: 'Kudryashev Display Sans', 'Optima', sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #fcf5f3;
+  --foreground: #744845;
 }
 
 body {
