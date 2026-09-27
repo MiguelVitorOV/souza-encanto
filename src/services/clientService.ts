@@ -81,14 +81,12 @@ export const clientService = {
     productId: string,
     size: string
   ): Promise<boolean> {
-    const { error } = await supabase
-      .from('client_interests')
-      .insert({
-        client_id: clientId,
-        product_id: productId,
-        size,
-        status: 'pending'
-      })
+    const { error } = await supabase.from('client_interests').insert({
+      client_id: clientId,
+      product_id: productId,
+      size,
+      status: 'pending'
+    })
 
     if (error) {
       console.error('Error adding interest:', error)
@@ -114,6 +112,12 @@ export const clientService = {
       .from('client_interests')
       .update({ status })
       .eq('id', interestId)
+
+    return !error
+  },
+
+  async deleteClient(clientId: string): Promise<boolean> {
+    const { error } = await supabase.from('clients').delete().eq('id', clientId)
 
     return !error
   }

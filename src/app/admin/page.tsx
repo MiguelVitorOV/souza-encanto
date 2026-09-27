@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Product } from '@/types'
-import { Plus, Edit2, LogOut, Check, X } from 'lucide-react'
+import { Plus, Edit2, LogOut, Check, X, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { formatCurrency } from '@/utils/formatters'
@@ -48,6 +48,27 @@ export default function AdminDashboard() {
       fetchProducts()
     } else {
       alert('Erro ao atualizar status.')
+    }
+  }
+
+  const handleDelete = async (id: string, name: string) => {
+    if (
+      window.confirm(
+        `Tem certeza que deseja DELETAR o produto "${name}"?\nEssa ação não pode ser desfeita e todas as informações serão perdidas.`
+      )
+    ) {
+      if (
+        window.confirm(
+          `DUPLA CONFIRMAÇÃO:\nVocê está prestes a excluir definitivamente o produto "${name}". Deseja continuar?`
+        )
+      ) {
+        const { error } = await supabase.from('products').delete().eq('id', id)
+        if (!error) {
+          fetchProducts()
+        } else {
+          alert('Erro ao excluir produto. Tente novamente.')
+        }
+      }
     }
   }
 
@@ -176,13 +197,21 @@ export default function AdminDashboard() {
                           )}
                         </button>
                       </td>
-                      <td className="p-4 text-center">
+                      <td className="p-4 flex items-center justify-center gap-2">
                         <Link
                           href={`/admin/products/${product.id}`}
                           className="text-brand-600 hover:text-brand-900 transition-colors p-2 inline-block bg-brand-50 rounded-lg hover:bg-brand-100"
+                          title="Editar produto"
                         >
                           <Edit2 size={16} />
                         </Link>
+                        <button
+                          onClick={() => handleDelete(product.id, product.name)}
+                          className="text-red-500 hover:text-red-700 transition-colors p-2 inline-block bg-red-50 rounded-lg hover:bg-red-100"
+                          title="Deletar produto"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </td>
                     </tr>
                   ))}

@@ -101,6 +101,33 @@ export default function InteressadosPage() {
     }
   }
 
+  const handleDeleteClient = async (
+    e: React.MouseEvent,
+    id: string,
+    name: string
+  ) => {
+    e.stopPropagation()
+    if (
+      window.confirm(
+        `Tem certeza que deseja DELETAR o cliente "${name}"?\nTodos os interesses de produtos vinculados a este cliente serão apagados também.`
+      )
+    ) {
+      if (
+        window.confirm(
+          `DUPLA CONFIRMAÇÃO:\nExcluir definitivamente o cliente "${name}"?`
+        )
+      ) {
+        const success = await clientService.deleteClient(id)
+        if (success) {
+          if (expandedClient === id) setExpandedClient(null)
+          loadData()
+        } else {
+          alert('Erro ao excluir cliente. Tente novamente.')
+        }
+      }
+    }
+  }
+
   const selectedProductObj = products.find((p) => p.id === selectedProductId)
 
   return (
@@ -170,6 +197,15 @@ export default function InteressadosPage() {
                     <span className="text-sm text-brand-500">
                       {client.interests.length} interesse(s)
                     </span>
+                    <button
+                      onClick={(e) =>
+                        handleDeleteClient(e, client.id, client.name)
+                      }
+                      className="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors"
+                      title="Deletar cliente"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                     {expandedClient === client.id ? (
                       <ChevronDown className="text-brand-400" />
                     ) : (
