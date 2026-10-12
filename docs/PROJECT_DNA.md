@@ -1,70 +1,75 @@
-# PROJECT DNA - Souza Encanto
+# PROJECT DNA - Mundo de Criança
 
 ## 1. Visão do Projeto
 
-Desenvolver um catálogo digital de alta qualidade visual para a loja "Souza Encanto", focado em moda íntima e pijamas. O sistema funcionará como uma vitrine interativa onde a conversão e fechamento de vendas ocorrem exclusivamente via WhatsApp, preservando o atendimento humano e personalizado.
+Desenvolver um catálogo digital acolhedor, lúdico e de alta qualidade visual para a loja **"Mundo de Criança"**, focado em moda infantil e bebê (desde recém-nascidos até a infância). O sistema atua como uma vitrine interativa onde a conversão e o fechamento de pedidos ocorrem exclusivamente via WhatsApp, preservando o atendimento humano, carinhoso e consultivo.
 
-## 2. Objetivos
+## 2. Objetivos Principais
 
-- Exibir produtos agrupados por categorias com detalhes de preço, tamanhos e disponibilidade.
-- Permitir que clientes montem um "carrinho de compras" e enviem a lista final de interesse via WhatsApp.
-- Fornecer um fluxo ágil para produtos "fora de estoque", permitindo contato direto para reserva.
-- Prover um painel administrativo simples e seguro para gestão de inventário (sem controle quantitativo, apenas status de disponibilidade).
+- Apresentar o catálogo de roupas infantis com apelo visual afetivo, cores acolhedoras e navegação fluida.
+- Permitir categorização flexível (N:N), possibilitando que uma peça pertença simultaneamente a múltiplas categorias (ex: "Feminino", "Até 4 anos", "Inverno", "Ofertas").
+- Fornecer filtros combináveis por tags/chips na vitrine com desmarcação ágil e botão "Limpar filtros".
+- Prover gestão de grades de tamanhos personalizáveis pelo administrador (ex: Bebê 1M-6M, Infantil 4-10), com tabela de medidas formatada e notas de orientação com modal explicativo para o cliente.
+- Permitir precificação promocional com desconto visível (tag de oferta, porcentagem calculada e preço original riscado).
+- Manter o fluxo de carrinho interativo com envio da lista detalhada diretamente para o WhatsApp da loja.
+- Manter o CRM simples de "Lista de Interessados" para peças fora de estoque.
 
 ## 3. Drivers Arquiteturais
 
-1. **Custo Zero:** A infraestrutura deve operar em tiers gratuitos (Free Tiers) indefinidamente.
-2. **Experiência do Usuário (UX):** O carrinho não pode ser "esquecido" pela cliente; deve haver estímulos visuais claros para o envio da mensagem ao WhatsApp.
-3. **Simplicidade Operacional:** O painel deve ser direto ao ponto (CRUD de produtos, upload de imagens e lista de interessados).
+1. **Afetividade e Identidade Visual (Mundo de Criança):** Design lúdico, alegre e confiável para mães, pais e presenteadores, utilizando tons pastéis acolhedores, nuvens, estrelas e a identidade oficial do ursinho com arco-íris.
+2. **Custo Operacional Zero:** Operar integralmente em tiers gratuitos (Next.js na Vercel e Supabase BaaS).
+3. **Simplicidade e Autonomia Administrativa:** O administrador gerencia livremente categorias, grades de tamanhos, tabelas de medidas e promoções sem depender de desenvolvedores.
+4. **Mobile-First Real:** Mais de 90% do público acessa via Instagram e WhatsApp por smartphones; botões de toque generosos, navegação por gestos e modais acessíveis.
+5. **Preservação de Dados Existentes:** Manutenção do histórico e fotos de produtos já cadastrados, isolando categorias legadas na categoria transitória "A mudar".
 
 ## 4. Restrições Invioláveis
 
-- **Sem gateway de pagamento:** Nenhuma transação financeira ocorrerá no site.
-- **Gestão de Estoque Booleana (Por Tamanho):** Não haverá controle de quantidade em estoque (ex: "5 peças"), apenas o status booleano (Em Estoque / Fora de Estoque) definido manualmente para cada variação de tamanho de um produto.
-- **Sem Autenticação Pública:** Clientes finais não precisam (e não devem) criar conta para usar o site.
+- **Sem Gateway de Pagamento:** Fechamento e cálculo de frete sempre via WhatsApp (wa.me).
+- **Sem Autenticação Pública:** Clientes compram sem cadastro. Apenas o painel administrativo exige login seguro via Supabase Auth.
+- **Estoque Booleano por Tamanho:** Cada tamanho de um produto é marcado individualmente como "Em estoque" ou "Fora de estoque".
+- **Integridade de Produtos na Exclusão de Grades:** Se uma Categoria de Tamanho for excluída, os produtos vinculados não podem ser deletados (`ON DELETE SET NULL`).
 
 ## 5. Decisões por Dimensão
 
-- **Negócio & Atendimento:** O "checkout" é substituído por um gerador de link dinâmico para a API do WhatsApp (wa.me) contendo a lista formatada de produtos.
-- **Armazenamento (Carrinho):** O estado do carrinho será mantido no lado do cliente (Local Storage), reduzindo necessidade de banco de dados e processamento no servidor.
-- **Interessados em Produtos Esgotados:** Clientes entram em contato direto; a administração (loja) cadastra os clientes na lista de interessados dentro do painel administrativo.
+- **Negócio & Atendimento:** O carrinho calcula o preço promocional (se ativo) e formata a mensagem do WhatsApp especificando produtos, tamanhos escolhidos, preços promocionais e valor total estimado.
+- **Categorização:** Migração para modelo relacional Many-to-Many (`products` <-> `categories` via `product_categories`). Na vitrine, o cliente pode combinar tags para refinar o catálogo.
+- **Grades de Tamanhos & Medidas:** Entidade independente `size_categories`. Guarda o nome da grade, lista de tamanhos, texto formatado da tabela de medidas e texto de observações/descrição. Cada produto referencia opcionalmente uma grade.
+- **Descontos:** Coluna opcional `promotional_price`. O formulário do produto sincroniza em tempo real o valor promocional e a porcentagem de desconto. O desconto só é ativo se `promotional_price > 0` e `promotional_price < price`.
+- **Branding & Assets:** Imagens oficiais da pasta `identidade-visual/` (`1.png` como referência de hero e `2.png` como tag/logo) são integradas aos assets públicos (`/public/images/`).
 
 ## 6. Arquitetura Lógica
 
-- **Client-Side Rendering (CSR) / Static Site Generation (SSG):** A aplicação consumirá os dados diretamente do banco de dados (BaaS).
-- **Backend as a Service (BaaS):** Delegação completa de Banco de Dados, Autenticação (para admin) e Storage de Imagens para um provedor gerenciado (Supabase).
+- **Frontend:** Next.js (App Router) com Server Components para SSR/SEO e Client Components para interações de carrinho, modais e filtros.
+- **Estado Global:** Zustand para persistência local do carrinho (`localStorage`).
+- **Backend / BaaS:** Supabase (PostgreSQL relacional, Auth para admin e Storage público para fotos de produtos).
 
-## 7. Arquitetura Física
+## 7. Arquitetura Física & Dados
 
-- **Frontend (Hospedagem):** Vercel (Edge Network).
-- **Backend / DB:** Supabase (PostgreSQL, Supabase Auth, Supabase Storage).
+- **Hospedagem:** Vercel (Edge Runtime).
+- **Banco de Dados (Supabase PostgreSQL):**
+  - `categories` (id, name, slug, created_at)
+  - `size_categories` (id, name, sizes text[], measurement_table text, measurement_description text, created_at)
+  - `products` (id, name, description, price, promotional_price, size_category_id, sizes jsonb, images text[], is_active, is_out_of_stock, created_at)
+  - `product_categories` (product_id uuid, category_id uuid, primary key (product_id, category_id))
+  - `clients` (id, name, nickname, phone_suffix, created_at)
+  - `client_interests` (id, client_id, product_id, size, status, created_at)
+  - `storage.buckets`: `product-images`
 
 ## 8. Stack Tecnológica
 
-- **Framework:** Next.js (App Router) ou React (Vite). _Recomendado Next.js para melhor SEO (indexação no Google dos produtos)._
-- **Estilização:** Tailwind CSS (Permite design rico e responsivo sem dependências pesadas).
-- **Gerenciamento de Estado:** Zustand (Leve, ideal para gerenciar o estado global do carrinho).
-- **Banco de Dados/Auth:** Supabase (Gratuito, relacional, resolve autenticação e upload de imagens out-of-the-box).
+- **Framework:** Next.js 15+ (App Router, React 19).
+- **Estilização:** Tailwind CSS v4 (Design Tokens customizados para paleta infantil).
+- **Ícones:** Lucide React.
+- **BaaS & DB:** Supabase Client (`@supabase/supabase-js`, `@supabase/ssr`).
+- **Estado do Carrinho:** Zustand com persistência local.
 
-## 9. Estratégia de Segurança
+## 9. Estratégia de Segurança (RLS)
 
-- **Row Level Security (RLS) no Supabase:**
-  - Tabela de Produtos: `SELECT` público; `INSERT/UPDATE/DELETE` apenas para usuários autenticados (Admin).
-  - Tabela de Interessados: Acesso exclusivo para Admin.
-  - Storage (Imagens): Leitura pública; Upload apenas Admin.
+- `categories`, `size_categories`, `products`, `product_categories`: `SELECT` público; `INSERT/UPDATE/DELETE` restrito a `authenticated` (Admin).
+- `clients`, `client_interests`: Leitura e escrita restritas a `authenticated` (Admin).
+- Storage `product-images`: `SELECT` público; mutações restritas a `authenticated`.
 
-## 10. Estratégia de Dados
+## 10. Riscos e Trade-offs
 
-- Relacionamentos Simples: `Produtos` (id, nome, preco, categoria, ativo, fora_de_estoque, imagens) -> `Lista_Interessados` (id, produto_id, nome_cliente, whatsapp).
-
-## 11. Identidade Visual e Assets
-
-- As definições completas de interface, cores (Creme, Rosa Seco, Terracota) e tipografia estão centralizadas no documento **[DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md)**, que serve como fonte da verdade para o front-end.
-- O projeto possui um diretório de identidade visual (`identidade-visual/`), cujos assets foram movidos para `public/images/`.
-- O arquivo `logo.png` deve ser utilizado globalmente (header, footer, painel admin) para reforçar o branding da "Souza Encanto".
-- As demais imagens (`1.png`, `2.png`, `3.png`, `4.png`) devem ser utilizadas como material de apoio (ex: banners, placeholders, seções "Sobre") visando transmitir a estética de alta qualidade da marca.
-
-## 12. Riscos e Trade-offs Aceitos
-
-- **Trade-off:** Não há sincronização em tempo real do estoque entre duas clientes comprando simultaneamente. _Aceito_, pois o fechamento é no WhatsApp.
-- **Risco:** O Supabase Free Tier "pausa" o banco de dados caso fique 1 semana sem nenhum acesso. _Mitigação:_ Configurar um cron job gratuito (ex: cron-job.org) para fazer um ping no banco a cada 3 dias, ou assumir o cold start (demora alguns segundos para religar no primeiro acesso da semana).
+- **Trade-off:** Tabela de medidas salva como texto formatado ao invés de colunas relacionais rígidas. _Benefício:_ Máxima flexibilidade para peças variadas (ex: conjunto blusa+short vs macacão vs vestido) sem rigidez de schema.
+- **Risco:** Inconsistência de filtros com categorias antigas. _Mitigação:_ Script de migração que direciona produtos legados para "A mudar" e remove categorias de lingerie sem excluir nenhum produto.

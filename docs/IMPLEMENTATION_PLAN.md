@@ -1,67 +1,82 @@
-# IMPLEMENTATION PLAN - Souza Encanto
+# IMPLEMENTATION PLAN - Mundo de Criança
 
-A abordagem visa focar primeiramente nas lógicas mais complexas (Carrinho) e garantir que a base esteja sólida, mantendo entregas incrementais.
+Este plano de implementação organiza as novas entregas em fases atômicas, minimizando riscos de quebra e garantindo entrega incremental e testável.
 
-## FASE 1: Fundação e Core (Semana 1) - CONCLUÍDA
+---
 
-**Foco:** Preparar o terreno e deixar o banco de dados e repositório prontos.
+## FASES ANTERIORES (CONCLUÍDAS)
 
-- [x] Inicialização do projeto frontend (Next.js + Tailwind).
-- [x] Criação do projeto no Supabase.
-- [x] Modelagem das tabelas (`products`, `categories`, `interested_leads`).
-- [x] Configuração do Supabase Storage para os uploads de imagens.
-- [x] Definição do Row Level Security (RLS) no Supabase.
+- [x] **Fase 1 a 4:** Fundação, Carrinho Local, Painel Administrativo Base e Vitrine Inicial.
+- [x] **Fase 5:** Controle granular de estoque booleano por tamanho.
+- [x] **Fase 6:** Páginas institucionais e correções de galeria mobile.
+- [x] **Fase 7:** CRM Básico de Lista de Interessados (`clients` e `client_interests`).
 
-## FASE 2: Carrinho e UX Principal (Semana 1-2) - CONCLUÍDA
+---
 
-**Foco:** Desenvolver o "Coração" do sistema antes mesmo de ter o painel admin (usando dados mockados se necessário).
+## FASE 8: Identidade Visual e Rebranding "Mundo de Criança"
 
-- [x] Implementação da loja global de estado do Carrinho (usando Zustand ou Context API + LocalStorage).
-- [x] Desenvolvimento do componente visual do "Carrinho Lateral/Modal".
-- [x] Desenvolvimento do Botão Flutuante persistente (indicador de itens no carrinho).
-- [x] Desenvolvimento do gerador dinâmico de texto para API do WhatsApp (`https://wa.me/...`).
+**Foco:** Transformar a estética e branding completo do app antes da reestruturação de catálogo.
 
-## FASE 3: Painel Administrativo (Semana 2) - CONCLUÍDA
+- [ ] **8.1 Tokens de Cores e Estilo:** Atualizar `globals.css` com a nova paleta alegre e carinhosa (Creme bebê suave, Rosa algodão-doce, Azul céu, Amarelo sol, Lilás lúdico e Marrom chocolate para contrastes e textos legíveis).
+- [ ] **8.2 Assets de Marca:** Preparar e integrar os assets de `identidade-visual/` (`1.png` e `2.png`) em `public/images/` para logo oficial, favicon e referências visuais.
+- [ ] **8.3 Header, Footer e Hero:** Reformular o cabeçalho, rodapé e criar o novo Hero acolhedor na Home da loja com a logo "Mundo de Criança" e mensagens afetivas da marca.
+- [ ] **8.4 Metadados e Textos:** Atualizar título da aplicação (`layout.tsx`), descrições de SEO e links institucionais de "Souza Encanto" para "Mundo de Criança".
 
-**Foco:** Dar autonomia para a administração preencher o catálogo real.
+---
 
-- [x] Implementação da Tela de Login e proteção de rotas admin.
-- [x] CRUD completo de Produtos (Listagem, Criação, Edição, Upload de Imagens Múltiplas).
-- [x] Botão de toggle rápido: "Ativo/Inativo" e "Em Estoque/Fora de Estoque".
-- [x] Funcionalidade de "Lista de Interessados" (Foi transformada na FASE 7).
+## FASE 9: Banco de Dados e Migração Segura (Sprint 9)
 
-## FASE 4: Vitrine Pública Dinâmica (Semana 3)
+**Foco:** Criar as novas estruturas no Supabase preservando 100% dos produtos já cadastrados.
 
-**Foco:** Conectar o frontend público ao banco de dados real.
+- [ ] **9.1 Schema de Categorias de Tamanho:** Criar tabela `size_categories` (id, name, sizes text[], measurement_table text, measurement_description text, created_at) com RLS público para leitura e autenticado para escrita.
+- [ ] **9.2 Schema de Multi-Categorias:** Criar tabela de junção `product_categories` (product_id uuid, category_id uuid, primary key) com RLS apropriado.
+- [ ] **9.3 Campos de Desconto e Grade em Produtos:** Adicionar colunas `promotional_price DECIMAL(10,2)` e `size_category_id UUID REFERENCES size_categories(id) ON DELETE SET NULL` na tabela `products`.
+- [ ] **9.4 Script de Migração de Dados:**
+  - Criar categoria padrão "A mudar" na tabela `categories`.
+  - Migrar referências existentes de `products.category_id` para a tabela `product_categories` apontando para "A mudar".
+  - Remover com segurança as categorias antigas de lingerie que não possuem mais produtos ativos.
 
-- [x] Tela Home com listagem dos produtos cadastrados (ativos).
-- [x] Navegação por categorias.
-- [x] Tela de Detalhes do Produto (com regras de negócio: se fora de estoque, esconde o botão "Adicionar ao Carrinho" e exibe "Tenho Interesse via WhatsApp").
-- [x] Integração do estado do carrinho com os produtos reais.
+---
 
-## FASE 5: Gestão Avançada de Catálogo e Estoque (Semana 3-4) - CONCLUÍDA
+## FASE 10: Painel Admin - Gestão de Tamanhos, Categorias e Promoções
 
-**Foco:** Refinar o banco de dados e as interfaces para suportar estoque por tamanho e categorização real.
+**Foco:** Dar total autonomia ao lojista para gerenciar o novo catálogo.
 
-- [x] Refatoração do schema do banco (Supabase) para migrar o campo `sizes` de um array de strings para JSONB ou tabela auxiliar (controlando inStock de cada tamanho).
-- [x] CRUD de Categorias no Painel Administrativo.
-- [x] Atualização do Formulário de Produto para vincular categorias e definir o status de estoque individual de cada tamanho.
-- [x] Atualização da Vitrine Pública para desabilitar visualmente botões de tamanhos esgotados.
-- [x] Lógica de clique em botão esgotado acionar WhatsApp "Avisar Quando Chegar".
+- [ ] **10.1 Gestão de Categorias de Tamanho (`/admin/tamanhos`):**
+  - Listagem, criação e edição de grades de tamanho.
+  - Campos: Nome da grade, chips de tamanhos incluídos (ex: 04, 06, 08, 10).
+  - Editor de texto formatado para Tabela de Medidas e Descrição/Orientações com painel de **pré-visualização ao vivo**.
+- [ ] **10.2 Atualização do Formulário de Produtos (`ProductForm`):**
+  - Seleção múltipla de categorias de produto (chips ou checkboxes).
+  - Seletor de Categoria de Tamanho (grade), com carregamento dinâmico dos tamanhos para marcação de presença e estoque.
+  - Campos de Preço e Desconto com sincronização bidirecional em tempo real (digitar preço promocional calcula % de desconto, e digitar % calcula preço promocional).
+- [ ] **10.3 Navegação do Admin:** Atualizar `AdminHeader` incluindo a nova aba "Tamanhos / Medidas".
 
-## FASE 6: Páginas Institucionais e Polimento (Semana 4) - CONCLUÍDA
+---
 
-- [x] Construção da página Sobre.
-- [x] Rodapé e Menus de Navegação.
-- [x] Validações finais de layout e responsividade em dispositivos móveis (foco mobile-first).
-- [ ] Deploy em produção (Vercel).
+## FASE 11: Vitrine Pública e Detalhes do Produto
 
-## FASE 7: CRM Básico - Lista de Interessados (Sprint 7)
+**Foco:** Experiência do cliente na descoberta, seleção e visualização de detalhes.
 
-**Foco:** Cadastrar clientes e gerenciar peças e tamanhos aguardados por eles, com integração bidirecional (via cliente e via produto).
+- [ ] **11.1 Filtros Múltiplos na Vitrine:**
+  - Reformulação visual dos filtros na Home: chips/tags de múltipla seleção com estado ativo/inativo elegante.
+  - Suporte à combinação de filtros cumulativos (ex: "Feminino" + "Até 4 anos") e botão para "Limpar filtros".
+- [ ] **11.2 Tags de Desconto e Preços Riscados:**
+  - `ProductCard`: Tag chamativa "-X% OFF" nos produtos em oferta, preço original riscado e preço promocional em destaque.
+  - `ClientProductDetails`: Destaque de preço promocional, economia e tag de oferta.
+- [ ] **11.3 Modal de Tabela de Medidas:**
+  - Na página do produto, exibir botão "📏 Tabela de Medidas" quando houver grade associada.
+  - Modal responsivo e acolhedor renderizando a tabela e notas de instrução de forma clara para mães e pais.
+- [ ] **11.4 Atualização de Carrinho e WhatsApp:**
+  - Garantir que o valor unitário computado no carrinho seja o preço promocional.
+  - Atualizar o gerador da mensagem do WhatsApp indicando a promoção e os valores exatos.
 
-- [x] Modelagem de Dados: Criar tabelas `clients` (nome, apelido) e `client_interests` (client_id, product_id, tamanho, status: 'pending'/'notified').
-- [x] Interface de Interessados: Nova aba no painel Admin `/admin/interessados`.
-- [x] Gestão por Cliente (Visão Principal): Listagem de clientes, modal para cadastrar novo cliente, e interface para visualizar/adicionar/remover interesses (produtos + tamanhos) de cada cliente.
-- [x] Gestão por Produto (Visão Secundária): Na tela de Edição de Produto (`/admin/products/[id]`), adicionar seção "Clientes Interessados" para visualizar e vincular clientes (existentes ou novos) àquela peça.
-- [x] Controle de Status: Permitir alterar o status de um interesse de 'Aguardando' (pending) para 'Notificado' (notified).
+---
+
+## FASE 12: Validação E2E, Lint e Deploy
+
+**Foco:** Garantir estabilidade e publicação sem regressões.
+
+- [ ] **12.1 Validação de Tipos e Build:** Rodar `npm run build` e validações de lint/prettier.
+- [ ] **12.2 Teste Funcional Mobile:** Validar experiência de clique, modais e filtros em resoluções mobile.
+- [ ] **12.3 Commit e Deploy na Vercel:** Publicação das atualizações com verificação do build.

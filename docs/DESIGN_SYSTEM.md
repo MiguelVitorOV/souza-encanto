@@ -1,46 +1,63 @@
-# DESIGN SYSTEM - Souza Encanto
+# DESIGN SYSTEM - Mundo de Criança
 
-Este documento centraliza as definições visuais, paleta de cores e princípios de interface (UI) da marca Souza Encanto. Ele deve ser utilizado como guia absoluto para a criação e manutenção de todos os componentes visuais do e-commerce.
+Este documento centraliza as definições visuais, paleta de cores e princípios de interface (UI) da marca **Mundo de Criança**. Ele serve como fonte da verdade para o front-end, substituindo integralmente a identidade anterior da Souza Encanto.
 
-## 1. Princípios Visuais
+---
 
-- **Elegância e Delicadeza:** O design reflete o nicho de moda íntima e pijamas. As linhas devem ser finas, os espaços generosos (white-space) e as transições sutis.
-- **Simplicidade (Mobile-First):** As interfaces devem ser construídas primariamente para telas de celular, com botões grandes, fáceis de tocar (touch targets) e informações diretas ao ponto.
-- **Micro-interações:** Pequenos feedbacks de ação (como hover, escala ao clicar, e modals que deslizam) são fundamentais para passar a sensação de aplicativo nativo.
+## 1. Princípios Visuais da Marca
 
-## 2. Paleta de Cores (Brand Colors)
+- **Afeto, Doçura e Alegria Infantil:** O design celebra o universo infantil e do bebê. Deve transmitir carinho, acolhimento, cuidado e segurança para mães, pais e familiares.
+- **Formas Suaves e Amigáveis:** Bordas bem arredondadas (`rounded-2xl`, `rounded-full`), sombras suaves e acolhedoras, micro-interações gentis.
+- **Mobile-First Afetivo:** Navegação fluida para quem está amamentando ou segurando o celular com uma mão só: botões de toque generosos (mínimo 44px), textos claros e contrastados, modais de fácil fechamento.
 
-A paleta foi extraída diretamente das referências fotográficas e de marca enviadas.
+---
 
-| Uso                    | Nome da Cor no Tailwind   | Hexadecimal | Descrição                                                                                                                             |
-| :--------------------- | :------------------------ | :---------- | :------------------------------------------------------------------------------------------------------------------------------------ |
-| **Fundo Principal**    | `brand-50`                | `#FCF5F3`   | Creme claro rosado. Usado para fundos de página, backgrounds de cartões e placeholders de imagens.                                    |
-| **Bordas e Divisores** | `brand-100`               | `#F3E8E6`   | Tom ligeiramente mais escuro que o fundo para separar seções suavemente.                                                              |
-| **Texto Secundário**   | `brand-500` / `brand-600` | `#DDA99B`   | Rosa seco/nude. Usado para descrições, labels e ícones inativos.                                                                      |
-| **Primária (Ação)**    | `brand-700`               | `#C48E7F`   | Terracota/Rosê intenso. Cor principal de identidade. Usada no Botão "Adicionar ao Carrinho" e destaques.                              |
-| **Hover de Ação**      | `brand-800`               | `#B57E70`   | Tom mais escuro para feedback de clique/hover nos botões.                                                                             |
-| **Texto Principal**    | `brand-900`               | `#4A3B38`   | Marrom escuro (quase grafite). Usado para títulos (h1, h2, h3) e textos importantes para garantir excelente legibilidade e contraste. |
-| **Contraste / Neutro** | `stone-900`               | `#1C1917`   | Usado para etiquetas extremas (ex: Botão "Esgotado", "Avisar no WhatsApp") passando urgência e sobriedade.                            |
+## 2. Paleta de Cores (Brand Tokens)
+
+Inspirada diretamente nas peças oficiais da pasta `identidade-visual/` (ursinho com laço azul, arco-íris, nuvens, estrelas e lettering 3D colorido):
+
+| Token Tailwind     | Cor Hexadecimal | Papel / Aplicação                                                                        |
+| :----------------- | :-------------- | :--------------------------------------------------------------------------------------- |
+| **`brand-50`**     | `#FFFDF9`       | Fundo principal suave (creme / marfim acolhedor). Transmite conforto sem cansar a vista. |
+| **`brand-100`**    | `#FFF3E8`       | Fundo secundário suave / bordas e divisores discretos.                                   |
+| **`brand-200`**    | `#FEE2D5`       | Pílulas inativas, cartões em destaque suave.                                             |
+| **`brand-pink`**   | `#FF6584`       | Rosa afetuoso / botões principais de ação e destaque feminino.                           |
+| **`brand-blue`**   | `#38BDF8`       | Azul céu / botões secundários, laço do mascote e destaques infantis.                     |
+| **`brand-yellow`** | `#FBBF24`       | Amarelo sol / estrelinhas, tags de novidade e detalhes vibrantes.                        |
+| **`brand-purple`** | `#A855F7`       | Lilás doce / destaques lúdicos.                                                          |
+| **`brand-text`**   | `#4A2E18`       | Marrom chocolate quente / texto principal com excelente contraste e toque carinhoso.     |
+| **`brand-muted`**  | `#7D6556`       | Marrom suave / textos secundários, legendas e descrições.                                |
+| **`brand-badge`**  | `#EF4444`       | Vermelho suave / tag de desconto visível ("-20% OFF").                                   |
+
+---
 
 ## 3. Tipografia
 
-- Fonte base: **Inter** (padrão otimizado da web).
-- Títulos (`h1`, `h2`): Utilizam peso `font-light` ou `font-medium` para passar sofisticação, sempre com letter-spacing um pouco mais apertado (`tracking-tight`).
-- Tags e Labels: Utilizam texto em letras maiúsculas (`uppercase`) com espaçamento largo (`tracking-widest`) em tamanhos pequenos (`text-xs`).
+- **Fonte Principal:** Inter / Sans amigável.
+- **Títulos:** Pesos médios a semibold (`font-medium` / `font-bold`), visual limpo, com bom espaçamento de leitura.
+- **Tags e Destaques:** Letras maiúsculas ou pílulas arredondadas com ícones lúdicos (ex: 📏 para medidas, 🏷️ para ofertas).
+
+---
 
 ## 4. Componentes Chave
 
-### Botões
+### 4.1 Header e Hero
 
-- **Primário:** Fundo `bg-brand-700`, texto branco, bordas arredondadas (`rounded-xl`), com leve elevação (`shadow-lg`). Ao clicar (active), reduz levemente a escala.
-- **Esgotado:** Fundo preto/stone (`bg-stone-900`), texto branco. Transmite a mensagem de indisponibilidade sem parecer um botão de erro (vermelho).
+- Logo oficial "Mundo de Criança" com o mascote ursinho e o arco-íris.
+- Banner Hero afetuoso com a mensagem: _"Qualidade e conforto • Produtos com amor • Para todas as fases"_.
 
-### Galeria e Cards
+### 4.2 Filtros de Categorias
 
-- Proporção de imagem para roupas é `aspect-[3/4]` ou `aspect-[4/5]` para garantir que peças longas (como calças e camisolas) não fiquem cortadas.
-- Sem cantos duros: imagens usam bordas suaves (`rounded-2xl` ou `rounded-xl`).
+- Pílulas (chips) de seleção múltipla permitindo ativar mais de uma categoria ao mesmo tempo (ex: "Feminino" + "Até 4 anos").
+- Tag selecionada recebe fundo colorido acolhedor com sombra suave; tag desmarcada recebe fundo creme com borda sutil.
+- Botão "Limpar filtros" visível quando houver seleções ativas.
 
-### Comportamentos de UI
+### 4.3 Tags de Desconto e Preço
 
-- **Offcanvas / Sidebar:** O carrinho abre lateralmente em desktops e de baixo para cima em celulares, sem redirecionar o usuário para outra página.
-- **Filtros (Categorias):** Devem ser exibidos como pílulas ("pills") roláveis horizontalmente, para economia de espaço no celular.
+- Badge de oferta no canto superior dos cards (ex: `-25% OFF`).
+- Preço original com traço riscado (`line-through text-stone-400 text-sm`) ao lado do preço com desconto em destaque (`text-brand-pink text-lg font-bold`).
+
+### 4.4 Tabela de Medidas
+
+- Botão sutil e convidativo: `📏 Tabela de Medidas` abaixo da seleção de tamanhos.
+- Modal responsivo com fundo claro, exibindo a tabela formatada (Blusa, Shorts, etc.) e o aviso afetuoso de orientação de compra.

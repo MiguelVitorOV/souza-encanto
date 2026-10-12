@@ -1,4 +1,4 @@
-# PRODUCT BACKLOG - Souza Encanto
+# PRODUCT BACKLOG - Mundo de Criança
 
 ## EPIC 1: Configuração e Infraestrutura Inicial (CONCLUÍDO)
 
@@ -6,45 +6,59 @@
 - **US 1.2:** [x] Como desenvolvedor, quero configurar o projeto no Supabase (Database, Auth, Storage) para ter a base de dados pronta.
 - **US 1.3:** [x] Como desenvolvedor, quero definir as políticas de segurança (RLS) no Supabase para garantir que apenas admins editem o banco.
 
-## EPIC 2: Painel Administrativo (Admin) (CONCLUÍDO)
+## EPIC 2: Painel Administrativo Base e Produtos (CONCLUÍDO)
 
 - **US 2.1:** [x] Como administradora, quero fazer login seguro no painel para gerenciar o catálogo.
-- **US 2.2:** [x] Como administradora, quero cadastrar, editar e inativar produtos (Nome, Preço, Categoria, Imagens, Tamanhos).
-- **US 2.3:** [x] Como administradora, quero marcar um produto como "Fora de Estoque" para que ele não possa ser adicionado ao carrinho, mas continue visível.
-- **US 2.4:** Como administradora, quero poder adicionar clientes a uma "Lista de Interessados" dentro da página de um produto esgotado, para lembrete futuro.
+- **US 2.2:** [x] Como administradora, quero cadastrar, editar e inativar produtos com fotos e tamanhos básicos.
+- **US 2.3:** [x] Como administradora, quero marcar um produto como "Fora de Estoque" para desativar compra imediata.
+- **US 2.4:** [x] Como administradora, quero poder remover fotos de um produto existente com confirmação.
 
-## EPIC 3: Catálogo Digital (Vitrine Pública)
+## EPIC 3: Carrinho e Checkout WhatsApp (CONCLUÍDO)
 
-- **US 3.1:** [x] Como cliente, quero ver a página inicial com os produtos em destaque ou últimos lançamentos.
-- **US 3.2:** [x] Como cliente, quero poder filtrar ou navegar pelos produtos através de categorias (Ex: Pijamas, Moda Íntima).
-- **US 3.3:** [x] Como cliente, quero abrir os detalhes de um produto e ver suas fotos, preço e tamanhos disponíveis.
-- **US 3.4:** [x] Como cliente, ao ver um produto "Fora de Estoque", quero ter um botão que me leve direto ao WhatsApp para perguntar quando chega.
+- **US 3.1:** [x] Como cliente, quero adicionar produtos com tamanho ao carrinho e vê-lo persistir entre páginas.
+- **US 3.2:** [x] Como cliente, quero ver o botão flutuante com a quantidade de itens no carrinho.
+- **US 3.3:** [x] Como cliente, quero clicar em finalizar e abrir o WhatsApp com a mensagem formatada contendo produtos e total.
 
-## EPIC 4: Carrinho de Compras e Checkout (WhatsApp) (CONCLUÍDO)
+## EPIC 4: CRM de Clientes e Interessados (CONCLUÍDO)
 
-- **US 4.1:** [x] Como cliente, quero poder adicionar produtos (com tamanho específico) ao carrinho de compras para continuar navegando.
-- **US 4.2:** [x] Como cliente, quero ver um indicador flutuante persistente mostrando que há itens no meu carrinho.
-- **US 4.3:** [x] Como cliente, quero acessar meu carrinho para alterar quantidades ou remover itens.
-- **US 4.4:** [x] Como cliente, quero clicar em "Finalizar Pedido" e ser redirecionada para o WhatsApp da loja, com uma mensagem gerada automaticamente listando todos os itens, tamanhos e valor total.
+- **US 4.1:** [x] Como administradora, quero cadastrar clientes e vincular peças/tamanhos que eles estão aguardando.
+- **US 4.2:** [x] Como administradora, quero marcar status do interesse como Notificado.
 
-## EPIC 5: Páginas Institucionais (CONCLUÍDO)
+---
 
-- **US 5.1:** [x] Como cliente, quero acessar a página "Sobre a Loja" para entender como funciona o modelo de vendas.
-- **US 5.2:** [x] Como cliente, quero acessar a página de "Contato" ou rodapé para encontrar os links das redes sociais e WhatsApp direto.
+## EPIC 5: Refatoração de Marca e Design "Mundo de Criança" (NOVO)
 
-## EPIC 6: Gestão Avançada de Catálogo e Estoque (CONCLUÍDO)
+**Objetivo:** Transformar completamente a estética da loja de moda íntima para o universo acolhedor, lúdico e afetuoso de moda infantil e bebê.
 
-- **US 6.1:** [x] Como administradora, quero gerenciar (CRUD) as categorias de produtos no painel administrativo.
-- **US 6.2:** [x] Como administradora, quero poder atrelar um produto a uma categoria durante a criação ou edição.
-- **US 6.3:** [x] Como administradora, quero controlar o estoque de um produto de forma granular (por tamanho) marcando se a variação "M" está em estoque ou esgotada independentemente da "P".
-- **US 6.4:** [x] Como cliente, quero ver os tamanhos esgotados na vitrine de forma visualmente desabilitada/cortada (mas ainda presentes na tela).
-- **US 6.5:** [x] Como cliente, ao tentar interagir com um tamanho esgotado, quero ser direcionada para pedir um "Aviso de Reposição" via WhatsApp.
+- **US 5.1:** Como cliente, quero ver a nova paleta de cores infantil (tons pastéis quentes, rosa chiclete, azul céu, amarelo sol, lilás e creme suave) com excelente legibilidade e harmonia.
+- **US 5.2:** Como cliente, quero ver o novo logo "Mundo de Criança" (ursinho com arco-íris e lettering 3D colorido das imagens oficiais) no cabeçalho, rodapé e favicon.
+- **US 5.3:** Como cliente, quero ver um banner Hero acolhedor na página inicial destacando o carinho da marca, qualidade, conforto e produtos para todas as fases.
+- **US 5.4:** Como administradora e cliente, quero que todos os textos, metatags de SEO, títulos de abas e rodapé sejam atualizados para "Mundo de Criança".
 
-## EPIC 5: CRM Básico - Lista de Interessados
+## EPIC 6: Categorização N:N e Filtros Avançados na Vitrine (NOVO)
 
-**Objetivo:** Controlar e reter clientes que manifestaram desejo em peças esgotadas, otimizando o fluxo de contato pós-reposição.
+**Objetivo:** Permitir que uma roupa pertença a múltiplas categorias e fornecer filtros combináveis por tags/chips intuitivos.
 
-- **Story 5.1:** Como Administrador, desejo ter um cadastro básico de Clientes (nome e apelido) para vincular os interesses a uma pessoa específica.
-- **Story 5.2:** Como Administrador, desejo visualizar uma aba "Interessados" que agrupe todos os clientes e me permita ver/cadastrar os produtos e tamanhos que eles aguardam.
-- **Story 5.3:** Como Administrador, na tela de edição de um produto específico, desejo visualizar a lista de todos os clientes interessados naquela peça, para facilitar o contato quando a mesma chegar ao estoque.
-- **Story 5.4:** Como Administrador, desejo poder atualizar o status de interesse de um cliente de "Aguardando" para "Notificado", garantindo que eu não perca o controle do histórico.
+- **US 6.1:** Como administradora, no cadastro/edição do produto, quero selecionar múltiplas categorias simultaneamente através de tags/checkboxes simples.
+- **US 6.2:** Como administradora, quero poder migrar com segurança as categorias antigas: os produtos existentes recebem a categoria "A mudar", permitindo a exclusão segura das categorias de lingerie legadas.
+- **US 6.3:** Como cliente na vitrine, quero selecionar múltiplas categorias através de chips interativos (ex: "Feminino" + "Até 4 anos") vendo os produtos que combinam os filtros.
+- **US 6.4:** Como cliente, quero desmarcar tags facilmente ou clicar em "Limpar filtros" para voltar a ver todos os produtos.
+
+## EPIC 7: Grades de Tamanho e Tabela de Medidas com Modal (NOVO)
+
+**Objetivo:** Permitir a criação de categorias de tamanhos personalizáveis pelo admin com tabela de medidas e texto explicativo, consultável pelo cliente.
+
+- **US 7.1:** Como administradora, quero ter um CRUD de Categorias de Tamanho (`/admin/tamanhos`), definindo o nome da grade (ex: "Bebê", "Infantil 4 a 10") e a lista de tamanhos disponíveis.
+- **US 7.2:** Como administradora, quero preencher a Tabela de Medidas (texto formatado com seções de blusa, shorts, etc.) e o texto descritivo de instruções/variações, com pré-visualização em tempo real.
+- **US 7.3:** Como administradora, no cadastro do produto, quero selecionar a qual Categoria de Tamanho ele pertence, carregando automaticamente os tamanhos daquela grade para marcar presença e estoque.
+- **US 7.4:** Como cliente na página do produto, quero visualizar os tamanhos daquela grade e ter um botão "📏 Tabela de Medidas" que abre um modal elegante com as medidas e instruções daquela categoria.
+- **US 7.5:** Como cliente, caso o produto não tenha categoria de tamanho vinculada (ex: acessórios/laços), o botão de tabela de medidas deve ser ocultado de forma transparente.
+
+## EPIC 8: Desconto Visível e Preço Promocional (NOVO)
+
+**Objetivo:** Destacar ofertas na vitrine e nos detalhes do produto, com cálculo automático e sincronização flexível.
+
+- **US 8.1:** Como administradora, no formulário do produto, quero informar o preço promocional OU a porcentagem de desconto, vendo ambos os campos se sincronizarem em tempo real.
+- **US 8.2:** Como cliente na vitrine, quero ver uma tag chamativa de desconto (ex: "-20% OFF") nos produtos em oferta.
+- **US 8.3:** Como cliente, na vitrine e na página de detalhes, quero ver o preço original riscado e o preço promocional em destaque.
+- **US 8.4:** Como cliente, ao adicionar um produto em oferta ao carrinho e finalizar via WhatsApp, o valor considerado deve ser o preço com desconto, com menção explícita à promoção na mensagem enviada.

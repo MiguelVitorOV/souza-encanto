@@ -1,31 +1,55 @@
-# AI EXECUTION GUIDE - Souza Encanto
+# AI EXECUTION GUIDE - Mundo de Criança
 
-Este documento serve como diretriz para agentes de Inteligência Artificial que auxiliarão no desenvolvimento do catálogo da "Souza Encanto".
+Este documento serve como diretriz obrigatória para agentes de Inteligência Artificial que desenvolverão novas funcionalidades ou manutenções na loja **Mundo de Criança**.
+
+---
 
 ## 1. Regras Arquiteturais Absolutas
 
-- **Zero Custo:** Nenhuma dependência, biblioteca, ou serviço de terceiros pago deve ser introduzido no projeto. Ficar restrito a Supabase (Free Tier) e Vercel.
-- **Mobile-First:** Como 90%+ dos clientes acessarão por celular via Instagram, o layout primário gerado em CSS/Tailwind DEVE ser mobile-first. O desktop é secundário (mas não deve quebrar).
-- **Carrinho Persistente:** O estado do carrinho deve obrigatoriamente persistir após _reload_ da página, utilizando estratégias nativas do navegador (LocalStorage) aliadas ao gerenciador de estado.
-- **Segurança de Dados:** Nenhuma rota da API ou consulta via _client-side_ pode permitir a mutação de dados da tabela de produtos caso a sessão não seja do perfil `Admin` válido do Supabase.
+- **Zero Custo:** Nenhuma dependência, serviço ou API paga pode ser adicionada. Manter 100% no Free Tier de Next.js (Vercel) e Supabase.
+- **Mobile-First Inegociável:** Mais de 90% dos usuários acessam por smartphones. Todos os modais, filtros e botões devem ter no mínimo 44px de área de toque e nunca quebrar em telas estreitas (360px a 420px).
+- **Integridade de Produtos Existentes:** NUNCA deletar produtos já existentes ao realizar migrações de categorias ou tamanhos. O lojista já fez uploads de fotos e informações.
+- **Segurança de Dados (RLS):** Toda mutação nas tabelas `categories`, `size_categories`, `products`, `product_categories`, `clients` e `client_interests` DEVE ser restrita a usuários autenticados no Supabase (`authenticated`). Leitura pública apenas para catálogo ativo.
+- **Carrinho Persistente:** O estado do carrinho deve persistir com `localStorage` e refletir sempre o preço promocional quando ativo.
 
-## 2. Padrões de Código, Stack e Design
+---
 
-- Utilize `Next.js` no padrão App Router (`/app`).
-- Para chamadas ao banco, utilize a biblioteca oficial `@supabase/supabase-js`.
-- Todo design deve ser feito utilizando `Tailwind CSS`. Evite CSS puro a menos que estritamente necessário para animações complexas.
-- Favoreça Componentes Funcionais React e React Hooks.
-- **Identidade Visual:** Utilize impreterivelmente o `logo.png` e as imagens `1.png` a `4.png` (presentes em `/public/images/`) ao desenvolver seções visuais, como Header, Hero, Banners e Sobre. A paleta de cores deve ser derivada desses assets para manter o branding refinado.
+## 2. Padrões de Código e Stack
 
-## 3. Processo de Implementação (Para IAs)
+- **Framework:** Next.js (App Router, `/app`).
+- **Estilização:** Tailwind CSS v4 com tokens da marca `Mundo de Criança` (definidos em `globals.css` e `DESIGN_SYSTEM.md`).
+- **Componentes:** Priorizar Server Components para páginas de catálogo inicial e Client Components (`'use client'`) apenas onde há interatividade (filtros dinâmicos, modais, carrinho, formulários).
+- **Ícones:** Usar exclusivamente `lucide-react`.
 
-1. Antes de gerar um novo componente, valide se um similar já existe ou se pode ser extraído.
-2. Certifique-se de tratar adequadamente estados de "Loading", "Empty" e "Error" para chamadas no Supabase.
-3. Todo formulário do lado Admin deve ter validação básica (não deixar nome de produto vazio, impedir preços negativos, etc).
+---
 
-## 4. Checklist de "Pronto" (Definition of Done)
+## 3. Regras de Domínio Específicas
 
-- O código compila sem erros (sem falhas de lint no Next.js).
-- O layout foi validado mentalmente/teoricamente para telas pequenas (`< 640px`).
-- As políticas de RLS do Supabase impedem que visitantes façam alterações acidentais.
-- Os links para o WhatsApp geram a string correta com `encodeURIComponent()`.
+### 3.1 Categorias de Produtos (N:N)
+
+- Um produto pode estar associado a múltiplas categorias via tabela de junção `product_categories`.
+- Na vitrine, a filtragem deve permitir seleção cumulativa de tags.
+
+### 3.2 Grades de Tamanhos e Medidas
+
+- Uma `size_category` contém: nome da grade, lista de tamanhos, texto de medidas e texto de instruções.
+- O produto referencia opcionalmente `size_category_id`.
+- Se o produto não tiver grade vinculada, o botão de "Tabela de Medidas" deve ser omitido na página do produto.
+- A exclusão de uma grade de tamanho nunca deve apagar produtos (`ON DELETE SET NULL`).
+
+### 3.3 Descontos
+
+- Um produto possui `price` e opcionalmente `promotional_price`.
+- O desconto só é válido se `promotional_price > 0` e `promotional_price < price`.
+- No formulário do produto, o admin pode preencher tanto o preço promocional quanto a porcentagem, mantendo sincronização bidirecional.
+- O checkout do WhatsApp e o subtotal do carrinho devem calcular exclusivamente sobre o preço promocional.
+
+---
+
+## 4. Checklist de Conclusão (Definition of Done)
+
+- [ ] Todas as tipagens TypeScript em `src/types/` e `src/types/database.types.ts` estão sincronizadas com o banco.
+- [ ] O comando de build (`npm run build`) executa sem erros ou avisos de lint impeditivos.
+- [ ] A formatação respeita o Prettier configurado no projeto.
+- [ ] O fluxo no WhatsApp gera texto legível e codificado com `encodeURIComponent`.
+- [ ] A experiência visual transmite calor, afeto e a identidade oficial da "Mundo de Criança".
