@@ -2,63 +2,68 @@ import { StoreHeader } from '@/components/ui/StoreHeader'
 import { StoreFooter } from '@/components/ui/StoreFooter'
 
 export const metadata = {
-  title: 'Sobre Nós | Souza Encanto'
+  title: 'Nossa História | Mundo de Criança',
+  description:
+    'Conheça a história e o carinho por trás da Mundo de Criança. Roupas infantis e de bebê feitas com amor e conforto.'
 }
 
 export default function SobrePage() {
   return (
     <div className="flex flex-col min-h-screen">
       <StoreHeader />
-      <main className="flex-1 bg-white">
+      <main className="flex-1 pb-20">
         {/* Hero Section */}
-        <div className="bg-brand-50 py-24 px-5 border-b border-brand-100">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-light text-brand-900 mb-6">
+        <div className="bg-gradient-to-b from-[#FFFDF8] via-[#FFF9EE] to-[#FAF2E8] py-20 px-5 border-b-2 border-brand-200/80">
+          <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
+            <img
+              src="/images/logo.png"
+              alt="Mundo de Criança"
+              className="h-28 sm:h-36 w-auto object-contain mb-4 drop-shadow-sm"
+            />
+            <h1 className="font-fredoka text-4xl sm:text-5xl text-brand-900 mb-4 tracking-tight">
               Nossa História
             </h1>
-            <p className="text-brand-700 text-lg md:text-xl font-light leading-relaxed">
-              O conforto que abraça, a beleza que transforma. A Souza Encanto
-              nasceu do desejo de trazer moda íntima e pijamas com uma curadoria
-              feita de mulher para mulher.
+            <p className="text-brand-900/80 text-base sm:text-lg font-medium leading-relaxed max-w-xl">
+              O aconchego que abraça, a alegria que transforma. A Mundo de
+              Criança nasceu para vestir os pequenos com amor, carinho e muito
+              conforto.
             </p>
           </div>
         </div>
 
         {/* Content */}
-        <div className="max-w-3xl mx-auto px-5 py-24 space-y-16">
-          <section className="space-y-6 text-brand-800 font-light leading-relaxed text-lg">
-            <h2 className="text-2xl font-medium text-brand-900 mb-6">
-              Nosso Propósito
+        <div className="max-w-3xl mx-auto px-5 py-16 space-y-12">
+          <section className="bg-white/95 backdrop-blur-xs p-8 sm:p-10 rounded-3xl border-2 border-brand-200 shadow-sm space-y-5 text-brand-900/85 leading-relaxed text-base sm:text-lg">
+            <h2 className="font-fredoka text-2xl text-brand-900 flex items-center gap-2">
+              🧸 Nosso Propósito
             </h2>
             <p>
-              Acreditamos que a primeira roupa que você veste no dia e a última
-              que usa para dormir ditam como você vai se sentir. Por isso, nossa
-              seleção de peças foge do óbvio: procuramos tecidos de alta
-              qualidade, rendas macias que não pinicam e modelagens que
-              respeitam e valorizam todos os tipos de corpos.
+              Acreditamos que a infância deve ser leve, colorida e confortável.
+              Cada conjunto e roupinha é escolhido a dedo, priorizando tecidos
+              macios que respeitam a pele sensível dos bebês e crianças,
+              costuras suaves e modelagens que permitem total liberdade para
+              brincar, crescer e sonhar.
             </p>
             <p>
-              Na Souza Encanto, não vendemos apenas pijamas; nós entregamos
-              momentos de autocuidado e noites de sono mais aconchegantes.
+              Na Mundo de Criança, nós não entregamos apenas roupas; nós fazemos
+              parte dos momentos mais doces da vida da sua família.
             </p>
           </section>
 
-          <section className="space-y-6 text-brand-800 font-light leading-relaxed text-lg pt-16 border-t border-brand-100">
-            <h2 className="text-2xl font-medium text-brand-900 mb-6">
-              Atendimento Humanizado
+          <section className="bg-white/95 backdrop-blur-xs p-8 sm:p-10 rounded-3xl border-2 border-brand-200 shadow-sm space-y-5 text-brand-900/85 leading-relaxed text-base sm:text-lg">
+            <h2 className="font-fredoka text-2xl text-brand-900 flex items-center gap-2">
+              💖 Atendimento com Amor
             </h2>
             <p>
-              O digital nos aproxima, mas fazemos questão de manter o calor do
-              atendimento físico. É por isso que optamos por não ter um
-              "checkout frio e automático".
+              Sabemos que escolher o tamanho certo para uma criança pode gerar
+              dúvidas. É exatamente por isso que mantemos o atendimento humano e
+              carinhoso pelo WhatsApp.
             </p>
             <p>
-              Quando você adiciona peças ao seu carrinho na nossa vitrine e
-              finaliza o pedido, você é direcionada diretamente para o nosso
-              WhatsApp. Lá, conversamos com você, tiramos dúvidas sobre
-              tamanhos, confirmamos as medidas e calculamos o frete com o
-              carinho que você merece. Queremos que sua compra seja uma
-              experiência única!
+              Ao escolher as peças na nossa vitrine e clicar em finalizar
+              pedido, você conversa diretamente com a nossa equipe. Conferimos
+              as medidas, indicamos o tamanho ideal e calculamos o melhor frete
+              com toda a atenção que você e seu pequeno merecem!
             </p>
           </section>
         </div>

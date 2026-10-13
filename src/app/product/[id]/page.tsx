@@ -30,15 +30,20 @@ export default async function ProductPage({
   return (
     <div className="flex flex-col min-h-screen">
       <StoreHeader />
-      <main className="flex-1 bg-white">
-        <div className="max-w-6xl mx-auto md:py-8 md:px-6">
+      <main className="flex-1 pb-20 pt-4 px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto">
+          {/* Botão de retorno estilizado */}
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-brand-600 p-5 md:p-0 md:mb-8 hover:text-brand-900 transition-colors font-medium text-sm"
+            className="inline-flex items-center gap-2 text-brand-900 font-bold text-xs sm:text-sm bg-white/90 border-2 border-brand-200 px-4 py-2 rounded-full mb-6 hover:bg-brand-100 hover:border-brand-300 transition-all shadow-2xs w-max active:scale-95"
           >
-            <ArrowLeft size={18} /> Voltar para vitrine
+            <ArrowLeft size={16} /> Voltar para vitrine
           </Link>
-          <ClientProductDetails product={product} />
+
+          {/* Card Principal da Peça no Fundo Bege */}
+          <div className="bg-white/95 rounded-3xl p-5 sm:p-8 md:p-10 border-2 border-brand-200/80 shadow-xs">
+            <ClientProductDetails product={product} />
+          </div>
         </div>
       </main>
       <StoreFooter />

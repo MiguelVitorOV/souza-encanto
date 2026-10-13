@@ -6,7 +6,8 @@ export const generateWhatsAppLink = (
   items: CartItem[],
   phone: string = STORE_CONFIG.WHATSAPP_NUMBER
 ): string => {
-  let message = 'Olá, Souza Encanto! Gostaria de fechar o seguinte pedido:\n\n'
+  let message =
+    'Olá, Mundo de Criança! Gostaria de fechar o seguinte pedido:\n\n'
 
   let total = 0
   items.forEach((item) => {

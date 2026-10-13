@@ -13,14 +13,14 @@ Este plano de implementação organiza as novas entregas em fases atômicas, min
 
 ---
 
-## FASE 8: Identidade Visual e Rebranding "Mundo de Criança"
+## FASE 8: Identidade Visual e Rebranding "Mundo de Criança" (CONCLUÍDA)
 
 **Foco:** Transformar a estética e branding completo do app antes da reestruturação de catálogo.
 
-- [ ] **8.1 Tokens de Cores e Estilo:** Atualizar `globals.css` com a nova paleta alegre e carinhosa (Creme bebê suave, Rosa algodão-doce, Azul céu, Amarelo sol, Lilás lúdico e Marrom chocolate para contrastes e textos legíveis).
-- [ ] **8.2 Assets de Marca:** Preparar e integrar os assets de `identidade-visual/` (`1.png` e `2.png`) em `public/images/` para logo oficial, favicon e referências visuais.
-- [ ] **8.3 Header, Footer e Hero:** Reformular o cabeçalho, rodapé e criar o novo Hero acolhedor na Home da loja com a logo "Mundo de Criança" e mensagens afetivas da marca.
-- [ ] **8.4 Metadados e Textos:** Atualizar título da aplicação (`layout.tsx`), descrições de SEO e links institucionais de "Souza Encanto" para "Mundo de Criança".
+- [x] **8.1 Tokens de Cores e Estilo:** Atualizar `globals.css` com a nova paleta alegre e carinhosa (Creme bebê suave, Rosa algodão-doce, Azul céu, Amarelo sol, Lilás lúdico e Marrom chocolate para contrastes e textos legíveis).
+- [x] **8.2 Assets de Marca:** Preparar e integrar os assets de `identidade-visual/` (`1.png` e `2.png`) em `public/images/` para logo oficial, favicon e referências visuais.
+- [x] **8.3 Header, Footer e Hero:** Reformular o cabeçalho, rodapé e criar o novo Hero acolhedor na Home da loja com a logo "Mundo de Criança" e mensagens afetivas da marca.
+- [x] **8.4 Metadados e Textos:** Atualizar título da aplicação (`layout.tsx`), descrições de SEO e links institucionais de "Souza Encanto" para "Mundo de Criança".
 
 ---
 

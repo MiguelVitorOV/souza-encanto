@@ -1,7 +1,7 @@
 import AdminGuard from '@/components/admin/AdminGuard'
 
 export const metadata = {
-  title: 'Admin - Souza Encanto'
+  title: 'Admin - Mundo de Criança'
 }
 
 export default function AdminLayout({

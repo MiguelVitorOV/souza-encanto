@@ -80,8 +80,8 @@ export default function AdminDashboard() {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-3xl font-light text-brand-800">Catálogo</h2>
-            <p className="text-brand-600 mt-1">
-              Gerencie os produtos da Souza Encanto
+            <p className="text-brand-900/70 mt-1">
+              Gerencie os produtos da Mundo de Criança
             </p>
           </div>
           <Link

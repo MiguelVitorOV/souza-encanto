@@ -16,26 +16,25 @@ Este documento centraliza as definições visuais, paleta de cores e princípios
 
 Inspirada diretamente nas peças oficiais da pasta `identidade-visual/` (ursinho com laço azul, arco-íris, nuvens, estrelas e lettering 3D colorido):
 
-| Token Tailwind     | Cor Hexadecimal | Papel / Aplicação                                                                        |
-| :----------------- | :-------------- | :--------------------------------------------------------------------------------------- |
-| **`brand-50`**     | `#FFFDF9`       | Fundo principal suave (creme / marfim acolhedor). Transmite conforto sem cansar a vista. |
-| **`brand-100`**    | `#FFF3E8`       | Fundo secundário suave / bordas e divisores discretos.                                   |
-| **`brand-200`**    | `#FEE2D5`       | Pílulas inativas, cartões em destaque suave.                                             |
-| **`brand-pink`**   | `#FF6584`       | Rosa afetuoso / botões principais de ação e destaque feminino.                           |
-| **`brand-blue`**   | `#38BDF8`       | Azul céu / botões secundários, laço do mascote e destaques infantis.                     |
-| **`brand-yellow`** | `#FBBF24`       | Amarelo sol / estrelinhas, tags de novidade e detalhes vibrantes.                        |
-| **`brand-purple`** | `#A855F7`       | Lilás doce / destaques lúdicos.                                                          |
-| **`brand-text`**   | `#4A2E18`       | Marrom chocolate quente / texto principal com excelente contraste e toque carinhoso.     |
-| **`brand-muted`**  | `#7D6556`       | Marrom suave / textos secundários, legendas e descrições.                                |
-| **`brand-badge`**  | `#EF4444`       | Vermelho suave / tag de desconto visível ("-20% OFF").                                   |
+| Token Tailwind     | Cor Hexadecimal | Papel / Aplicação                                                                         |
+| :----------------- | :-------------- | :---------------------------------------------------------------------------------------- |
+| **`brand-50`**     | `#FAF2E8`       | Fundo bege quentinho oficial (extraído diretamente do poster). Conforto visual acolhedor. |
+| **`brand-100`**    | `#F5E6D3`       | Fundo secundário suave / bordas e divisores discretos.                                    |
+| **`brand-200`**    | `#EED3B8`       | Pílulas inativas, cartões em destaque suave.                                              |
+| **`brand-700`**    | `#D82B66`       | Rosa framboesa vibrante de ação (botões principais e destaques).                          |
+| **`brand-pink`**   | `#FFA5C8`       | Rosa algodão-doce das nuvens e detalhes afetivos.                                         |
+| **`brand-blue`**   | `#7CC2F5`       | Azul céu das nuvens sorridentes e laço do mascote.                                        |
+| **`brand-yellow`** | `#FBDD59`       | Amarelo sol das estrelinhas e nuvens ensolaradas.                                         |
+| **`brand-purple`** | `#D6B5FF`       | Lilás doce para detalhes lúdicos.                                                         |
+| **`brand-text`**   | `#4A2E18`       | Marrom chocolate quente para títulos e textos principais com contraste acolhedor.         |
 
 ---
 
 ## 3. Tipografia
 
-- **Fonte Principal:** Inter / Sans amigável.
-- **Títulos:** Pesos médios a semibold (`font-medium` / `font-bold`), visual limpo, com bom espaçamento de leitura.
-- **Tags e Destaques:** Letras maiúsculas ou pílulas arredondadas com ícones lúdicos (ex: 📏 para medidas, 🏷️ para ofertas).
+- **Títulos e Destaques:** **Fredoka** (Google Fonts) — tipografia arredondada, fofa e expressiva, perfeita para marcas infantis.
+- **Textos e Leitura:** **Quicksand** (Google Fonts) — família sem serifa arredondada e limpa para ótima legibilidade.
+- **Tags e Destaques:** Pílulas arredondadas com ícones lúdicos (ex: 🧸, 💖, 🌈, 📏).
 
 ---
 

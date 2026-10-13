@@ -26,14 +26,14 @@
 
 ---
 
-## EPIC 5: Refatoração de Marca e Design "Mundo de Criança" (NOVO)
+## EPIC 5: Refatoração de Marca e Design "Mundo de Criança" (CONCLUÍDO)
 
 **Objetivo:** Transformar completamente a estética da loja de moda íntima para o universo acolhedor, lúdico e afetuoso de moda infantil e bebê.
 
-- **US 5.1:** Como cliente, quero ver a nova paleta de cores infantil (tons pastéis quentes, rosa chiclete, azul céu, amarelo sol, lilás e creme suave) com excelente legibilidade e harmonia.
-- **US 5.2:** Como cliente, quero ver o novo logo "Mundo de Criança" (ursinho com arco-íris e lettering 3D colorido das imagens oficiais) no cabeçalho, rodapé e favicon.
-- **US 5.3:** Como cliente, quero ver um banner Hero acolhedor na página inicial destacando o carinho da marca, qualidade, conforto e produtos para todas as fases.
-- **US 5.4:** Como administradora e cliente, quero que todos os textos, metatags de SEO, títulos de abas e rodapé sejam atualizados para "Mundo de Criança".
+- **US 5.1:** [x] Como cliente, quero ver a nova paleta de cores infantil (tons pastéis quentes, rosa chiclete, azul céu, amarelo sol, lilás e creme suave) com excelente legibilidade e harmonia.
+- **US 5.2:** [x] Como cliente, quero ver o novo logo "Mundo de Criança" (ursinho com arco-íris e lettering 3D colorido das imagens oficiais) no cabeçalho, rodapé e favicon.
+- **US 5.3:** [x] Como cliente, quero ver um banner Hero acolhedor na página inicial destacando o carinho da marca, qualidade, conforto e produtos para todas as fases.
+- **US 5.4:** [x] Como administradora e cliente, quero que todos os textos, metatags de SEO, títulos de abas e rodapé sejam atualizados para "Mundo de Criança".
 
 ## EPIC 6: Categorização N:N e Filtros Avançados na Vitrine (NOVO)
 
