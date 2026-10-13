@@ -44,6 +44,14 @@ Este documento serve como diretriz obrigatória para agentes de Inteligência Ar
 - No formulário do produto, o admin pode preencher tanto o preço promocional quanto a porcentagem, mantendo sincronização bidirecional.
 - O checkout do WhatsApp e o subtotal do carrinho devem calcular exclusivamente sobre o preço promocional.
 
+### 3.4 Mídias Mistas (Vídeos e Fotos) e Ordenação Numérica
+
+- **Estrutura de Dados:** Cada produto armazena mídias em `media JSONB` como array de objetos `{ url: string, type: 'image' | 'video', order: number }`.
+- **Retrocompatibilidade:** Se `media` for nulo ou vazio, o sistema deve automaticamente mapear o array existente `images text[]` atribuindo `type: 'image'` e ordens sequenciais `1, 2, ...`. Ao salvar o formulário do produto, além do JSON `media`, o array `images` deve ser preenchido com as URLs das fotos para garantir funcionamento com versões anteriores.
+- **Vitrine Inteligente (Capa Fixa):** O card da vitrine (`ProductCard`) e as miniaturas do carrinho NUNCA devem tentar tocar vídeo como capa. Eles devem sempre buscar a foto de menor número de ordem como capa estática. Se o produto tiver vídeos cadastrados, exibir apenas uma tag/badge sutil indicando a presença de vídeo. O formulário admin deve garantir/recomendar ao menos 1 foto para servir de capa.
+- **Validação de Upload:** O lojista pode subir vídeos de até 40MB. Se um arquivo de vídeo ultrapassar 40MB, emitir um alerta impeditivo no formulário admin para evitar exceder o free tier do Supabase e prejudicar a experiência em redes 4G.
+- **Player de Vídeo nos Detalhes:** Na página de detalhes (`ClientProductDetails`), quando a mídia ativa for um vídeo, renderizar elemento `<video controls playsInline muted ...>` com design responsivo.
+
 ---
 
 ## 4. Checklist de Conclusão (Definition of Done)
@@ -51,5 +59,7 @@ Este documento serve como diretriz obrigatória para agentes de Inteligência Ar
 - [ ] Todas as tipagens TypeScript em `src/types/` e `src/types/database.types.ts` estão sincronizadas com o banco.
 - [ ] O comando de build (`npm run build`) executa sem erros ou avisos de lint impeditivos.
 - [ ] A formatação respeita o Prettier configurado no projeto.
+- [ ] A capa da vitrine e carrinho sempre renderiza foto estática válida, mesmo com vídeo em 1º lugar na galeria.
+- [ ] O upload de vídeos valida e bloqueia arquivos acima de 40MB.
 - [ ] O fluxo no WhatsApp gera texto legível e codificado com `encodeURIComponent`.
 - [ ] A experiência visual transmite calor, afeto e a identidade oficial da "Mundo de Criança".
