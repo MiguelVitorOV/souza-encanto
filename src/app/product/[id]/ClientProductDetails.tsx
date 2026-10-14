@@ -6,7 +6,7 @@ import { formatCurrency } from '@/utils/formatters'
 import { useCartStore } from '@/store/useCartStore'
 import { STORE_CONFIG } from '@/config/constants'
 import { getProductMedia } from '@/utils/media'
-import { Play } from 'lucide-react'
+import { Play, ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   getProductAccentColor,
   getSizeColorPalette,
@@ -48,6 +48,62 @@ export function ClientProductDetails({ product }: ClientProductDetailsProps) {
   const mediaList = useMemo(() => getProductMedia(product), [product])
   const [activeMediaIndex, setActiveMediaIndex] = useState<number>(0)
   const activeMedia = mediaList[activeMediaIndex] || mediaList[0] || null
+
+  const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
+
+  const handlePrev = () => {
+    if (mediaList.length <= 1) return
+    setActiveMediaIndex((prev) => (prev > 0 ? prev - 1 : mediaList.length - 1))
+  }
+
+  const handleNext = () => {
+    if (mediaList.length <= 1) return
+    setActiveMediaIndex((prev) => (prev < mediaList.length - 1 ? prev + 1 : 0))
+  }
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current
+
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (deltaX < 0) {
+        handleNext()
+      } else {
+        handlePrev()
+      }
+    }
+    touchStartX.current = null
+    touchStartY.current = null
+  }
+
+  const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (mediaList.length <= 1) return
+    const target = e.target as HTMLElement
+    // Evita acionar quando o usuário clica especificamente em botões internos
+    if (target.tagName.toLowerCase() === 'button' || target.closest('button')) {
+      return
+    }
+
+    const rect = e.currentTarget.getBoundingClientRect()
+    const clickX = e.clientX - rect.left
+    const width = rect.width
+
+    // Canto esquerdo (< 35% da imagem)
+    if (clickX < width * 0.35) {
+      handlePrev()
+    }
+    // Canto direito (> 65% da imagem)
+    else if (clickX > width * 0.65) {
+      handleNext()
+    }
+  }
 
   const [accent, setAccent] = useState<ColorScheme>(() =>
     getProductAccentColor(product.id)
@@ -121,7 +177,12 @@ export function ClientProductDetails({ product }: ClientProductDetailsProps) {
     <div className="flex flex-col md:flex-row gap-8 md:gap-12 lg:gap-16">
       {/* Galeria de Fotos e Vídeos */}
       <div className="w-full md:w-1/2 flex flex-col gap-4">
-        <div className="aspect-[4/5] bg-brand-50 w-full overflow-hidden rounded-2xl border-2 border-brand-200/80 shadow-2xs relative">
+        <div
+          onClick={handleContainerClick}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          className="aspect-[4/5] bg-brand-50 w-full overflow-hidden rounded-2xl border-2 border-brand-200/80 shadow-2xs relative select-none cursor-pointer group"
+        >
           {activeMedia ? (
             activeMedia.type === 'video' ? (
               <video
@@ -135,19 +196,57 @@ export function ClientProductDetails({ product }: ClientProductDetailsProps) {
                 onLoadedData={(e) => {
                   e.currentTarget.play().catch(() => {})
                 }}
-                className="w-full h-full object-cover rounded-2xl bg-black/90"
+                className="w-full h-full object-cover rounded-2xl bg-black/90 pointer-events-auto"
               />
             ) : (
               <img
                 src={activeMedia.url}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover pointer-events-none"
               />
             )
           ) : (
             <div className="w-full h-full flex items-center justify-center text-brand-300">
               Sem mídia
             </div>
+          )}
+
+          {/* Navegação lateral (botões e cantos clicáveis) */}
+          {mediaList.length > 1 && (
+            <>
+              {/* Botão Anterior (Canto Esquerdo) */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handlePrev()
+                }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 hover:bg-white text-brand-900 shadow-md flex items-center justify-center transition-all opacity-85 hover:opacity-100 hover:scale-105 z-10 cursor-pointer"
+                title="Mídia anterior"
+                aria-label="Mídia anterior"
+              >
+                <ChevronLeft size={22} />
+              </button>
+
+              {/* Botão Próximo (Canto Direito) */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleNext()
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 hover:bg-white text-brand-900 shadow-md flex items-center justify-center transition-all opacity-85 hover:opacity-100 hover:scale-105 z-10 cursor-pointer"
+                title="Próxima mídia"
+                aria-label="Próxima mídia"
+              >
+                <ChevronRight size={22} />
+              </button>
+
+              {/* Indicador de página discreto */}
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-stone-900/60 backdrop-blur-xs text-white text-[11px] font-medium px-2.5 py-0.5 rounded-full pointer-events-none z-10">
+                {activeMediaIndex + 1} / {mediaList.length}
+              </div>
+            </>
           )}
         </div>
 
