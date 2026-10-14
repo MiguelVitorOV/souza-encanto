@@ -80,17 +80,18 @@ Este plano de implementação organiza as novas entregas em fases atômicas, min
 
 **Foco:** Experiência do cliente na descoberta, seleção e visualização de detalhes.
 
-- [ ] **12.1 Filtros Múltiplos na Vitrine:**
-  - Reformulação visual dos filtros na Home: chips/tags de múltipla seleção com estado ativo/inativo elegante.
-  - Suporte à combinação de filtros cumulativos (ex: "Feminino" + "Até 4 anos") e botão para "Limpar filtros".
-- [ ] **12.2 Tags de Desconto e Preços Riscados:**
-  - `ProductCard`: Tag chamativa "-X% OFF" nos produtos em oferta, preço original riscado e preço promocional em destaque.
-  - `ClientProductDetails`: Destaque de preço promocional, economia e tag de oferta.
-- [ ] **12.3 Modal de Tabela de Medidas:**
+- [x] **12.1 Filtros Múltiplos na Vitrine:**
+  - Reformulação visual dos filtros na Home: chips/tags de múltipla seleção com estado ativo/inativo elegante (`VitrineCatalog`).
+  - Suporte à combinação de filtros cumulativos e botão para "Limpar filtros".
+- [x] **12.2 Tags de Desconto e Preços Riscados:**
+  - `ProductCard`: Tag compacta "-X%" (sólida para mobile), preço original riscado ao lado do selo "X% OFF" e preço promocional em destaque.
+  - `ClientProductDetails`: Destaque de preço promocional, selo de porcentagem e preço riscado.
+- [x] **12.3 Modal de Tabela de Medidas:**
   - Na página do produto, exibir botão "📏 Tabela de Medidas" quando houver grade associada.
-  - Modal responsivo e acolhedor renderizando a tabela e notas de instrução de forma clara para mães e pais.
-- [ ] **12.4 Atualização de Carrinho e WhatsApp:**
+  - Modal responsivo e acolhedor (`MeasurementModal`) renderizando a tabela e notas de instrução de forma clara para mães e pais.
+- [x] **12.4 Atualização de Carrinho e WhatsApp:**
   - Garantir que o valor unitário computado no carrinho seja o preço promocional.
+  - Sacola exibindo linha "Economizando" com destaque do valor poupado e total com desconto.
   - Atualizar o gerador da mensagem do WhatsApp indicando a promoção e os valores exatos.
 
 ---

@@ -1,7 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import { ProductCard } from '@/components/ui/ProductCard'
-import { Product, Category } from '@/types'
-import Link from 'next/link'
+import { VitrineCatalog } from '@/components/ui/VitrineCatalog'
 import { StoreHeader } from '@/components/ui/StoreHeader'
 import { StoreFooter } from '@/components/ui/StoreFooter'
 import { Cloud, Star } from '@/components/ui/CloudDecorations'
@@ -9,33 +7,19 @@ import { Cloud, Star } from '@/components/ui/CloudDecorations'
 // Pede ao Next.js para atualizar o cache a cada 60 segundos
 export const revalidate = 60
 
-export default async function Home({
-  searchParams
-}: {
-  searchParams: Promise<{ category?: string }>
-}) {
-  const params = await searchParams
-  // Busca categorias
+export default async function Home() {
+  // Busca categorias ativas cadastradas
   const { data: categories } = await supabase
     .from('categories')
     .select('*')
     .order('name')
 
-  // Busca produtos marcados como ativos
-  let query = supabase
+  // Busca produtos marcados como ativos junto com os vínculos de multicategorias
+  const { data: products } = await supabase
     .from('products')
-    .select('*')
+    .select('*, product_categories(category_id)')
     .eq('is_active', true)
     .order('created_at', { ascending: false })
-
-  if (params.category && params.category !== 'all') {
-    const selectedCat = categories?.find((c) => c.slug === params.category)
-    if (selectedCat) {
-      query = query.eq('category_id', selectedCat.id)
-    }
-  }
-
-  const { data: products } = await query
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -109,55 +93,11 @@ export default async function Home({
             </div>
           </div>
 
-          {/* Âncora e Filtro de Categorias */}
-          <div id="produtos" className="scroll-mt-24">
-            {categories && categories.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-10 pb-2 px-1">
-                <Link
-                  href="/#produtos"
-                  className={`whitespace-nowrap px-5 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all border-2 shadow-xs ${
-                    !params.category || params.category === 'all'
-                      ? 'bg-brand-700 text-white border-brand-700 shadow-md scale-105'
-                      : 'bg-white text-brand-900 border-brand-200 hover:border-brand-500 hover:bg-brand-50'
-                  }`}
-                >
-                  🌟 Todos os Produtos
-                </Link>
-                {categories.map((cat: Category) => (
-                  <Link
-                    key={cat.id}
-                    href={`/?category=${cat.slug}#produtos`}
-                    className={`whitespace-nowrap px-5 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all border-2 shadow-xs ${
-                      params.category === cat.slug
-                        ? 'bg-brand-700 text-white border-brand-700 shadow-md scale-105'
-                        : 'bg-white text-brand-900 border-brand-200 hover:border-brand-500 hover:bg-brand-50'
-                    }`}
-                  >
-                    {cat.name}
-                  </Link>
-                ))}
-              </div>
-            )}
-
-            {!products || products.length === 0 ? (
-              <div className="text-center py-16 sm:py-20 px-6 bg-white/90 backdrop-blur-xs rounded-3xl border-2 border-brand-200 shadow-sm max-w-lg mx-auto">
-                <span className="text-5xl mb-4 block animate-bounce">🧸</span>
-                <h2 className="font-fredoka text-xl sm:text-2xl text-brand-900 font-bold mb-2">
-                  Vitrine em preparação
-                </h2>
-                <p className="text-brand-900/70 text-sm font-medium">
-                  Nenhum produto disponível no momento. Volte em breve para se
-                  encantar com as novidades!
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3.5 gap-y-8 sm:gap-x-6 sm:gap-y-12">
-                {products.map((product: Product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Vitrine de Produtos e Filtros por Categorias Múltiplas */}
+          <VitrineCatalog
+            products={products || []}
+            categories={categories || []}
+          />
         </div>
       </main>
 

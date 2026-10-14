@@ -101,5 +101,30 @@
 
 ### Lições Aprendidas
 
-- **Dual-Write para Migração Contínua sem Downtime:** Salvar simultaneamente na tabela relacional de junção (`product_categories`) e no campo legado (`category_id`) permite que o painel administrativo adote novos recursos imediatamente enquanto a vitrine pública aguarda a Sprint 12 sem interrupções.
+- **Dual-Write para Migração Contínua sem Downtime:** Salvar simultaneamente na tabela relacional de junção (`product_categories`) e no campo legado (`category_id`) permitiu que o painel administrativo adotasse novos recursos enquanto a vitrine pública aguardava a Sprint 12 sem interrupções.
 - **Sincronização Bidirecional sem Loops:** O cálculo reativo entre Preço Promocional e Desconto deve validar intervalos válidos e disparar unicamente quando os valores efetivamente mudam, evitando loops e inconsistências de arredondamento.
+
+---
+
+## Sprint 12: Vitrine Pública, Filtros e Detalhes do Produto
+
+### Funcionalidades Implementadas
+
+1. **Filtros Multi-Categorias na Vitrine (`VitrineCatalog`):**
+   - Substituição de links estáticos de categoria por chips de seleção múltipla e cumulativa com contagem dinâmica de produtos encontrados e botão "Limpar filtros".
+   - Consulta de produtos utilizando a junção relacional `product_categories(category_id)`, eliminando a dependência do campo legado removido `products.category_id`.
+2. **Tags de Desconto e Preços Promocionais:**
+   - `ProductCard`: Tag de desconto compacta `"-X%"` no topo da imagem (com cores HEX sólidas garantindo compatibilidade total com navegadores mobile legados sem transparência indesejada). Preço original riscado acompanhado do selo `"X% OFF"` e preço promocional em destaque.
+   - `ClientProductDetails`: Preço original riscado, selo `"X% OFF"` e preço promocional destacado em cor vibrante.
+3. **Modal de Tabela de Medidas (`MeasurementModal`):**
+   - Botão `"📏 Tabela de Medidas"` exibido na página do produto quando houver grade associada (`size_category`).
+   - Modal responsivo e acolhedor renderizando a tabela e notas de instrução de forma clara para mães e pais.
+4. **Carrinho e Finalização via WhatsApp:**
+   - Total da sacola calculado utilizando o preço promocional efetivo de cada item.
+   - Footer da sacola com linha `"🔥 Economizando - R$ X,XX"`, subtotal original riscado e total estimado com desconto.
+   - Mensagem formatada enviada ao WhatsApp indicando as peças promocionais, o valor total economizado e o total final.
+
+### Lições Aprendidas
+
+- **Compatibilidade de Cores em Dispositivos Móveis:** Em ambientes com Tailwind CSS v4 onde o padrão de cores utiliza a função moderna `oklch()`, dispositivos e webviews mobile mais antigos podem falhar na renderização e exibir fundos transparentes. A definição explícita de cores HEX (`--color-rose-*: #...`) no tema e propriedades `style` inline garantem renderização sólida em 100% dos dispositivos.
+- **Coerção Numérica em Descontos:** Valores vindos de formulários ou do banco de dados podem sofrer coerção para strings em certas etapas; o uso sistemático de `Number(...)` em helpers centrais de precificação (`src/utils/pricing.ts`) assegura que operações matemáticas e comparadores não sofram ordenação lexicográfica.

@@ -7,6 +7,8 @@ import { formatCurrency } from '@/utils/formatters'
 import { generateWhatsAppLink } from '@/utils/whatsapp'
 import { useEffect, useState } from 'react'
 
+import { getProductEffectivePrice } from '@/utils/pricing'
+
 export function CartSidebar() {
   const { isCartOpen, setCartOpen, items } = useCartStore()
   const [mounted, setMounted] = useState(false)
@@ -18,10 +20,17 @@ export function CartSidebar() {
 
   if (!mounted) return null
 
-  const total = items.reduce(
-    (acc, item) => acc + item.product.price * item.quantity,
+  const originalTotal = items.reduce(
+    (acc, item) => acc + (Number(item.product.price) || 0) * item.quantity,
     0
   )
+
+  const effectiveTotal = items.reduce(
+    (acc, item) => acc + getProductEffectivePrice(item.product) * item.quantity,
+    0
+  )
+
+  const totalSavings = Math.max(0, originalTotal - effectiveTotal)
 
   const handleCheckout = () => {
     const link = generateWhatsAppLink(items)
@@ -89,12 +98,53 @@ export function CartSidebar() {
         {/* Footer */}
         {items.length > 0 && (
           <div className="p-4 border-t border-brand-100 bg-brand-50">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-brand-700">Total estimado</span>
-              <span className="text-lg font-bold text-brand-900">
-                {formatCurrency(total)}
-              </span>
-            </div>
+            {totalSavings > 0 ? (
+              <div className="space-y-1.5 mb-4">
+                <div className="flex justify-between items-center text-xs text-brand-700/80">
+                  <span>Subtotal original</span>
+                  <span className="line-through text-stone-400">
+                    {formatCurrency(originalTotal)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center text-xs font-bold text-rose-600">
+                  <span className="flex items-center gap-1">
+                    <span>🔥</span> Economizando
+                  </span>
+                  <span
+                    className="px-2 py-0.5 rounded-md border text-[11px] font-bold"
+                    style={{
+                      backgroundColor: '#ffe4e6',
+                      color: '#be123c',
+                      borderColor: '#fecdd3'
+                    }}
+                  >
+                    - {formatCurrency(totalSavings)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-baseline pt-2 border-t border-brand-200/60">
+                  <span className="text-sm font-bold text-brand-900">
+                    Total estimado
+                  </span>
+                  <span
+                    className="text-xl font-bold tracking-tight"
+                    style={{ color: '#e11d48' }}
+                  >
+                    {formatCurrency(effectiveTotal)}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-brand-700 font-medium">
+                  Total estimado
+                </span>
+                <span className="text-lg font-bold text-brand-900">
+                  {formatCurrency(effectiveTotal)}
+                </span>
+              </div>
+            )}
 
             <button
               onClick={handleCheckout}

@@ -76,8 +76,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
   // Multi-Categorias N:N
   const [categories, setCategories] = useState<Category[]>([])
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(
-    initialData?.category_ids ||
-      (initialData?.category_id ? [initialData.category_id] : [])
+    initialData?.category_ids || []
   )
 
   // Grade de Tamanhos
@@ -122,13 +121,11 @@ export function ProductForm({ initialData }: ProductFormProps) {
             (row: { category_id: string }) => row.category_id
           )
           setSelectedCategoryIds(ids)
-        } else if (initialData.category_id) {
-          setSelectedCategoryIds([initialData.category_id])
         }
       }
     }
     loadData()
-  }, [initialData?.id, initialData?.category_id])
+  }, [initialData?.id])
 
   // Lista dinâmica de opções de tamanhos baseada na grade selecionada
   const activeSizeOptions = useMemo(() => {
@@ -347,14 +344,13 @@ export function ProductForm({ initialData }: ProductFormProps) {
       }
     }
 
-    // Prepara payload com dual-write (category_id legado + suporte N:N)
+    // Prepara payload de produtos (categorias gerenciadas via product_categories N:N)
     const productPayload = {
       name,
       description: description || null,
       price: normalPrice,
       promotional_price: validPromo,
       size_category_id: selectedSizeCategoryId || null,
-      category_id: selectedCategoryIds[0] || null, // Dual-write retrocompatível
       sizes,
       images: photos,
       media: sortedMedia,

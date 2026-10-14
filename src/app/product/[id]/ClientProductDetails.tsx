@@ -6,7 +6,10 @@ import { formatCurrency } from '@/utils/formatters'
 import { useCartStore } from '@/store/useCartStore'
 import { STORE_CONFIG } from '@/config/constants'
 import { getProductMedia } from '@/utils/media'
-import { Play, ChevronLeft, ChevronRight } from 'lucide-react'
+import { getProductDiscount } from '@/utils/pricing'
+import { Play, ChevronLeft, ChevronRight, Ruler } from 'lucide-react'
+import { MeasurementModal } from '@/components/product/MeasurementModal'
+import { sortProductSizes } from '@/utils/sizes'
 import {
   getProductAccentColor,
   getSizeColorPalette,
@@ -18,33 +21,10 @@ interface ClientProductDetailsProps {
   product: Product
 }
 
-const SIZE_ORDER: Record<string, number> = {
-  RN: 1,
-  '1M': 2,
-  '2M': 3,
-  '3M': 4,
-  '6M': 5,
-  '9M': 6,
-  '12M': 7,
-  '1': 8,
-  '2': 9,
-  '3': 10,
-  '4': 11,
-  '6': 12,
-  '8': 13,
-  '10': 14,
-  '12': 15,
-  '14': 16,
-  '16': 17,
-  P: 18,
-  M: 19,
-  G: 20,
-  GG: 21,
-  U: 99
-}
-
 export function ClientProductDetails({ product }: ClientProductDetailsProps) {
   const [selectedSize, setSelectedSize] = useState<string>('')
+  const [isMeasurementModalOpen, setIsMeasurementModalOpen] = useState(false)
+  const discount = getProductDiscount(product)
   const mediaList = useMemo(() => getProductMedia(product), [product])
   const [activeMediaIndex, setActiveMediaIndex] = useState<number>(0)
   const activeMedia = mediaList[activeMediaIndex] || mediaList[0] || null
@@ -161,13 +141,10 @@ export function ClientProductDetails({ product }: ClientProductDetailsProps) {
     )
   }
 
-  const sortedSizes = product.sizes
-    ? [...product.sizes].sort(
-        (a, b) =>
-          (SIZE_ORDER[a.size.toUpperCase()] || 99) -
-          (SIZE_ORDER[b.size.toUpperCase()] || 99)
-      )
-    : []
+  const sortedSizes = useMemo(
+    () => sortProductSizes(product.sizes || [], product.size_category?.sizes),
+    [product.sizes, product.size_category]
+  )
 
   const isCompletelyOutOfStock =
     product.is_out_of_stock ||
@@ -248,6 +225,16 @@ export function ClientProductDetails({ product }: ClientProductDetailsProps) {
               </div>
             </>
           )}
+
+          {/* Badge de Desconto Compacto */}
+          {discount.hasDiscount && (
+            <div
+              className="absolute top-3 right-3 text-white text-[11px] font-extrabold px-2.5 py-1 rounded-full shadow-md z-10 tracking-tight"
+              style={{ backgroundColor: '#e11d48', color: '#ffffff' }}
+            >
+              -{discount.percent}%
+            </div>
+          )}
         </div>
 
         {mediaList.length > 1 && (
@@ -307,12 +294,38 @@ export function ClientProductDetails({ product }: ClientProductDetailsProps) {
           {product.name}
         </h1>
 
-        {/* Preço com cor aleatória entre Rosa (#D82B66), Azul (#0284C7) e Amarelo (#D97706) */}
-        <p
-          className={`font-bold text-2xl sm:text-3xl ${accent.priceClass} mb-6 transition-colors duration-300`}
-        >
-          {formatCurrency(product.price)}
-        </p>
+        {/* Preço (Promocional em destaque ou Preço Padrão) */}
+        {discount.hasDiscount ? (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+              <span className="text-base sm:text-lg text-stone-400 line-through font-normal">
+                {formatCurrency(discount.originalPrice)}
+              </span>
+              <span
+                className="text-xs font-bold px-2 py-0.5 rounded-md border"
+                style={{
+                  backgroundColor: '#ffe4e6',
+                  color: '#be123c',
+                  borderColor: '#fecdd3'
+                }}
+              >
+                {discount.percent}% OFF
+              </span>
+            </div>
+            <p
+              className="font-bold text-3xl sm:text-4xl tracking-tight"
+              style={{ color: '#e11d48' }}
+            >
+              {formatCurrency(discount.effectivePrice)}
+            </p>
+          </div>
+        ) : (
+          <p
+            className={`font-bold text-2xl sm:text-3xl ${accent.priceClass} mb-6 transition-colors duration-300`}
+          >
+            {formatCurrency(product.price)}
+          </p>
+        )}
 
         {/* Descrição em cor de máxima legibilidade (Marrom Chocolate Nítido) */}
         {product.description && (
@@ -329,10 +342,20 @@ export function ClientProductDetails({ product }: ClientProductDetailsProps) {
         {/* Seleção de Tamanhos com cores intercaladas (Rosa, Azul, Amarelo) */}
         {sortedSizes.length > 0 && (
           <div className="mb-8">
-            <div className="flex justify-between items-center mb-3">
+            <div className="flex justify-between items-center mb-3 flex-wrap gap-2">
               <h3 className="font-fredoka text-xs text-brand-900/70 uppercase tracking-wider font-bold">
                 Escolha o Tamanho
               </h3>
+              {product.size_category && (
+                <button
+                  type="button"
+                  onClick={() => setIsMeasurementModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-700 hover:text-brand-900 bg-brand-50 hover:bg-brand-100 border border-brand-200 px-2.5 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs active:scale-95"
+                >
+                  <Ruler size={14} />
+                  <span>Tabela de Medidas</span>
+                </button>
+              )}
             </div>
             <div className="flex gap-3 flex-wrap">
               {sortedSizes.map((s, idx) => {
@@ -407,6 +430,14 @@ export function ClientProductDetails({ product }: ClientProductDetailsProps) {
           </div>
         </div>
       </div>
+
+      {product.size_category && (
+        <MeasurementModal
+          isOpen={isMeasurementModalOpen}
+          onClose={() => setIsMeasurementModalOpen(false)}
+          sizeCategory={product.size_category}
+        />
+      )}
     </div>
   )
 }

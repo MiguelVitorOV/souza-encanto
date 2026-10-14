@@ -15,16 +15,26 @@ export default async function ProductPage({
 }) {
   const { id } = await params
 
-  // Busca o produto e assegura que ele esteja ativo
-  const { data: product } = await supabase
+  // Busca o produto e assegura que ele esteja ativo, incluindo dados da grade de tamanho
+  const { data: rawProduct } = await supabase
     .from('products')
-    .select('*')
+    .select(
+      `
+      *,
+      size_categories (*)
+    `
+    )
     .eq('id', id)
     .eq('is_active', true)
     .single()
 
-  if (!product) {
+  if (!rawProduct) {
     notFound()
+  }
+
+  const product = {
+    ...rawProduct,
+    size_category: (rawProduct as any).size_categories || null
   }
 
   return (

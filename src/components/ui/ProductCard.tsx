@@ -3,6 +3,7 @@ import { Product } from '@/types'
 import { formatCurrency } from '@/utils/formatters'
 import { getProductAccentColor } from '@/utils/colors'
 import { getProductCoverImage } from '@/utils/media'
+import { getProductDiscount } from '@/utils/pricing'
 
 export function ProductCard({ product }: { product: Product }) {
   const isCompletelyOutOfStock =
@@ -13,6 +14,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   const accent = getProductAccentColor(product.id)
   const coverImage = getProductCoverImage(product)
+  const discount = getProductDiscount(product)
 
   return (
     <Link
@@ -32,9 +34,20 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
         )}
 
+        {/* Badge de Esgotado */}
         {isCompletelyOutOfStock && (
-          <div className="absolute top-2.5 left-2.5 bg-stone-900/85 backdrop-blur-xs text-white text-[10px] uppercase font-bold tracking-wider px-3 py-1.5 rounded-full shadow-md">
+          <div className="absolute top-2.5 left-2.5 bg-stone-900/85 backdrop-blur-xs text-white text-[10px] uppercase font-bold tracking-wider px-3 py-1.5 rounded-full shadow-md z-10">
             Esgotado
+          </div>
+        )}
+
+        {/* Badge de Desconto Compacto (só a porcentagem para não cobrir a foto da peça) */}
+        {discount.hasDiscount && (
+          <div
+            className="absolute top-2.5 right-2.5 text-white text-[10px] sm:text-[11px] font-extrabold px-2 py-0.5 rounded-full shadow-md z-10 tracking-tight"
+            style={{ backgroundColor: '#e11d48', color: '#ffffff' }}
+          >
+            -{discount.percent}%
           </div>
         )}
       </div>
@@ -43,9 +56,36 @@ export function ProductCard({ product }: { product: Product }) {
         <h3 className="font-fredoka text-brand-900 text-base leading-snug mb-1.5 line-clamp-2 group-hover:text-brand-700 transition-colors">
           {product.name}
         </h3>
-        <p className={`font-bold text-base md:text-lg ${accent.priceClass}`}>
-          {formatCurrency(product.price)}
-        </p>
+
+        {discount.hasDiscount ? (
+          <div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="text-xs text-stone-400 line-through font-normal">
+                {formatCurrency(discount.originalPrice)}
+              </span>
+              <span
+                className="text-[10px] font-bold px-1.5 py-0.5 rounded-md border"
+                style={{
+                  backgroundColor: '#ffe4e6',
+                  color: '#be123c',
+                  borderColor: '#fecdd3'
+                }}
+              >
+                {discount.percent}% OFF
+              </span>
+            </div>
+            <p
+              className="font-bold text-base md:text-lg text-rose-600"
+              style={{ color: '#e11d48' }}
+            >
+              {formatCurrency(discount.effectivePrice)}
+            </p>
+          </div>
+        ) : (
+          <p className={`font-bold text-base md:text-lg ${accent.priceClass}`}>
+            {formatCurrency(discount.effectivePrice)}
+          </p>
+        )}
       </div>
     </Link>
   )

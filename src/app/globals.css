@@ -21,6 +21,14 @@
   --color-brand-orange: #fb923c; /* Laranja lúdico */
   --color-brand-mint: #34d399; /* Menta */
 
+  /* Cores de destaque e desconto (HEX para compatibilidade com navegadores móveis mais antigos) */
+  --color-rose-50: #fff1f2;
+  --color-rose-100: #ffe4e6;
+  --color-rose-200: #fecdd3;
+  --color-rose-500: #f43f5e;
+  --color-rose-600: #e11d48;
+  --color-rose-700: #be123c;
+
   --font-fredoka: var(--font-fredoka-family), 'Fredoka', cursive;
   --font-quicksand: var(--font-quicksand-family), 'Quicksand', sans-serif;
   --font-sans: var(--font-quicksand-family), 'Quicksand', sans-serif;
