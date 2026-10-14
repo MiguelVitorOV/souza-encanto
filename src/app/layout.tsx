@@ -3,6 +3,7 @@ import { Fredoka, Quicksand } from 'next/font/google'
 import './globals.css'
 import { CartWrapper } from '@/components/cart/CartWrapper'
 import { BackgroundClouds } from '@/components/ui/CloudDecorations'
+import { Analytics } from '@vercel/analytics/next'
 
 const fredoka = Fredoka({
   variable: '--font-fredoka-family',
@@ -43,6 +44,7 @@ export default function RootLayout({
           {children}
         </div>
         <CartWrapper />
+        <Analytics />
       </body>
     </html>
   )
