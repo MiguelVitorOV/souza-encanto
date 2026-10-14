@@ -39,6 +39,7 @@ export interface Database {
           category_id: string | null
           sizes: any
           images: string[]
+          media?: any
           is_active: boolean
           is_out_of_stock: boolean
           created_at: string
@@ -51,6 +52,7 @@ export interface Database {
           category_id?: string | null
           sizes?: any
           images?: string[]
+          media?: any
           is_active?: boolean
           is_out_of_stock?: boolean
           created_at?: string
@@ -63,6 +65,7 @@ export interface Database {
           category_id?: string | null
           sizes?: any
           images?: string[]
+          media?: any
           is_active?: boolean
           is_out_of_stock?: boolean
           created_at?: string

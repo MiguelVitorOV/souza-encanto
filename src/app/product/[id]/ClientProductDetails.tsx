@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { Product } from '@/types'
 import { formatCurrency } from '@/utils/formatters'
 import { useCartStore } from '@/store/useCartStore'
 import { STORE_CONFIG } from '@/config/constants'
+import { getProductMedia } from '@/utils/media'
+import { Play } from 'lucide-react'
 import {
   getProductAccentColor,
   getSizeColorPalette,
@@ -43,9 +45,10 @@ const SIZE_ORDER: Record<string, number> = {
 
 export function ClientProductDetails({ product }: ClientProductDetailsProps) {
   const [selectedSize, setSelectedSize] = useState<string>('')
-  const [activeImage, setActiveImage] = useState<string>(
-    product.images?.[0] || ''
-  )
+  const mediaList = useMemo(() => getProductMedia(product), [product])
+  const [activeMediaIndex, setActiveMediaIndex] = useState<number>(0)
+  const activeMedia = mediaList[activeMediaIndex] || mediaList[0] || null
+
   const [accent, setAccent] = useState<ColorScheme>(() =>
     getProductAccentColor(product.id)
   )
@@ -116,39 +119,77 @@ export function ClientProductDetails({ product }: ClientProductDetailsProps) {
 
   return (
     <div className="flex flex-col md:flex-row gap-8 md:gap-12 lg:gap-16">
-      {/* Galeria de Fotos */}
+      {/* Galeria de Fotos e Vídeos */}
       <div className="w-full md:w-1/2 flex flex-col gap-4">
-        <div className="aspect-[4/5] bg-brand-50 w-full overflow-hidden rounded-2xl border-2 border-brand-200/80 shadow-2xs">
-          {activeImage ? (
-            <img
-              src={activeImage}
-              alt={product.name}
-              className="w-full h-full object-cover"
-            />
+        <div className="aspect-[4/5] bg-brand-50 w-full overflow-hidden rounded-2xl border-2 border-brand-200/80 shadow-2xs relative">
+          {activeMedia ? (
+            activeMedia.type === 'video' ? (
+              <video
+                key={activeMedia.url}
+                src={activeMedia.url}
+                autoPlay
+                loop
+                muted
+                playsInline
+                controls
+                onLoadedData={(e) => {
+                  e.currentTarget.play().catch(() => {})
+                }}
+                className="w-full h-full object-cover rounded-2xl bg-black/90"
+              />
+            ) : (
+              <img
+                src={activeMedia.url}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            )
           ) : (
             <div className="w-full h-full flex items-center justify-center text-brand-300">
-              Sem imagem
+              Sem mídia
             </div>
           )}
         </div>
 
-        {product.images && product.images.length > 1 && (
+        {mediaList.length > 1 && (
           <div className="flex gap-3 px-1 md:px-0 overflow-x-auto pb-2 no-scrollbar">
-            {product.images.map((img, idx) => (
+            {mediaList.map((m, idx) => (
               <button
                 key={idx}
-                onClick={() => setActiveImage(img)}
-                className={`w-20 h-24 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all ${
-                  activeImage === img
+                type="button"
+                onClick={() => setActiveMediaIndex(idx)}
+                className={`w-20 h-24 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all relative group cursor-pointer ${
+                  activeMediaIndex === idx
                     ? 'border-brand-700 shadow-md scale-105'
                     : 'border-transparent opacity-60 hover:opacity-100'
                 }`}
               >
-                <img
-                  src={img}
-                  alt="Miniatura"
-                  className="w-full h-full object-cover"
-                />
+                {m.type === 'video' ? (
+                  <>
+                    <video
+                      src={m.url}
+                      className="w-full h-full object-cover pointer-events-none"
+                      preload="metadata"
+                      muted
+                      playsInline
+                    />
+                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                      <div className="w-7 h-7 rounded-full bg-white/95 text-brand-900 flex items-center justify-center shadow-md">
+                        <Play
+                          size={13}
+                          fill="currentColor"
+                          className="ml-0.5 text-brand-900"
+                        />
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <img
+                    src={m.url}
+                    alt="Miniatura"
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </button>
             ))}
           </div>

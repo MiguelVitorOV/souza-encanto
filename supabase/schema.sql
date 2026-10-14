@@ -15,6 +15,7 @@ CREATE TABLE public.products (
     category_id UUID REFERENCES public.categories(id) ON DELETE SET NULL,
     sizes JSONB DEFAULT '[]'::jsonb,
     images TEXT[] DEFAULT '{}',
+    media JSONB DEFAULT '[]'::jsonb,
     is_active BOOLEAN DEFAULT true,
     is_out_of_stock BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL

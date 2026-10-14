@@ -36,3 +36,30 @@
 ### Débitos Técnicos
 
 - **Nenhum.** Build 100% verde com TypeScript rigoroso e Turbopack compilando sem advertências.
+
+---
+
+## Sprint 9: Suporte a Vídeos de Demonstração e Ordenação Manual de Mídias (Urgente)
+
+### Problemas Encontrados
+
+1. **Autoplay Bloqueado em Dispositivos Móveis (iOS/Android):**
+   - **Descrição:** Vídeos renderizados em navegadores mobile sofrem restrições de autoplay caso possuam áudio ativo ou não incluam a diretiva de reprodução inline.
+   - **Causa:** Políticas de economia de dados e prevenção de poluição sonora nos navegadores móveis (WebKit e Blink).
+   - **Solução:** Configurar a tag com `autoPlay`, `loop`, `muted`, `playsInline` e listener defensivo `onLoadedData={(e) => e.currentTarget.play().catch(() => {})}`, garantindo início imediato sem bloqueios.
+2. **Poluição Visual com Badges sobre Fotos de Capa:**
+   - **Descrição:** A adição de selos textuais (`▶️ Vídeo`) nos cards da vitrine desarmonizava a estética afetiva e limpa da loja.
+   - **Solução:** Remoção do badge do `ProductCard`, mantendo a capa 100% limpa com foto estática e reservando a indicação de vídeo com ícone de play apenas para as miniaturas da página de detalhes.
+
+### Restrições Descobertas
+
+- **Cota de Armazenamento do Supabase (Tier Gratuito):** O limite de 50MB por arquivo do Supabase Storage exige controle rígido client-side. A trava de 40MB aplicada no formulário do admin previne rejeições de upload HTTP 413 e protege o lojista de esgotar o storage com arquivos não comprimidos.
+
+### Lições Aprendidas
+
+- **Ordenação Numérica vs Drag-and-Drop em Mobile:** Utilizar campos de entrada numérica direta (`Ordem: [ N ]`) elimina a necessidade de bibliotecas pesadas de arrastar/soltar, remove conflitos com o gesto de scroll nativo em smartphones e fornece uma experiência previsível e direta para o lojista.
+- **Camada de Retrocompatibilidade (Dual-Write):** Ao introduzir uma estrutura mais rica em JSONB (`media`), manter a sincronização com a coluna antiga (`images`) garante que nenhum componente legado quebre e dispensa migrações destrutivas.
+
+### Débitos Técnicos
+
+- **Execução da Migration SQL em Produção:** Executar `ALTER TABLE public.products ADD COLUMN IF NOT EXISTS media JSONB DEFAULT '[]'::jsonb;` diretamente no SQL Editor do Supabase (o código já possui fallback resiliente ativo).

@@ -24,26 +24,25 @@ Este plano de implementação organiza as novas entregas em fases atômicas, min
 
 ---
 
-## FASE 9: Suporte a Vídeos de Demonstração e Ordenação Manual de Mídias (Sprint 9 - Urgente)
+## FASE 9: Suporte a Vídeos de Demonstração e Ordenação Manual de Mídias (Sprint 9 - Urgente) (CONCLUÍDA)
 
 **Foco:** Permitir upload de vídeos curtos demonstrativos e ordenação manual de mídias por número, garantindo capa estática rápida na vitrine.
 
-- [ ] **9.1 Schema de Dados & Tipagem:**
+- [x] **9.1 Schema de Dados & Tipagem:**
   - Adicionar suporte à estrutura de mídia no banco (campo `media jsonb DEFAULT '[]'::jsonb` na tabela `products`).
   - Atualizar tipos TypeScript (`ProductMedia { url: string; type: 'image' | 'video'; order: number }`) com retrocompatibilidade automática com `images text[]`.
-- [ ] **9.2 Upload de Vídeo e Trava de Segurança:**
+- [x] **9.2 Upload de Vídeo e Trava de Segurança:**
   - Atualizar `src/utils/storage.ts` para upload de vídeos para o bucket Supabase.
   - Implementar validação client-side com alerta amigável caso o vídeo ultrapasse 40 MB.
-- [ ] **9.3 Painel Admin - Gestão de Mídias e Ordenação (`ProductForm`):**
+- [x] **9.3 Painel Admin - Gestão de Mídias e Ordenação (`ProductForm`):**
   - Permitir adicionar fotos e vídeos na galeria do produto.
   - Adicionar campo numérico simples ("Ordem: N") em cada item da galeria para definir a sequência sem necessidade de arrastar.
   - Ao salvar o produto, ordenar as mídias pelo número definido e manter sincronismo retrocompatível com o array `images`.
-- [ ] **9.4 Vitrine Inteligente e Miniaturas (`ProductCard` e Carrinho):**
-  - No card da vitrine e no carrinho, selecionar automaticamente a primeira foto da galeria como capa estática.
-  - Exibir um selo sutil de vídeo (badge "▶️ Vídeo") no card da vitrine caso o produto possua vídeos cadastrados.
-- [ ] **9.5 Player de Vídeo e Galeria nos Detalhes (`ClientProductDetails`):**
-  - Renderizar player de vídeo responsivo com controles e áudio mutado por padrão quando o item ativo for um vídeo.
-  - Miniaturas na barra inferior exibindo ícone indicador para vídeos e prévias para fotos.
+- [x] **9.4 Vitrine Inteligente e Miniaturas (`ProductCard` e Carrinho):**
+  - No card da vitrine e no carrinho, selecionar automaticamente a primeira foto da galeria como capa estática de carregamento rápido, mantendo a visualização clean sem tags poluídas.
+- [x] **9.5 Player de Vídeo e Galeria nos Detalhes (`ClientProductDetails`):**
+  - Renderizar player de vídeo responsivo com autoplay imediato em loop, áudio mutado e controles para pausar/desmutar.
+  - Miniaturas na barra inferior exibindo ícone discreto para vídeos e prévias para fotos.
 
 ---
 

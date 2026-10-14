@@ -10,9 +10,18 @@ export interface ProductSize {
   inStock: boolean
 }
 
+export type MediaType = 'image' | 'video'
+
+export interface ProductMedia {
+  url: string
+  type: MediaType
+  order: number
+}
+
 export type Product = Omit<
   Database['public']['Tables']['products']['Row'],
-  'sizes'
+  'sizes' | 'media'
 > & {
   sizes: ProductSize[]
+  media?: ProductMedia[]
 }

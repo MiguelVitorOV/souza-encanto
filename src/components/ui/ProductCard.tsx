@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Product } from '@/types'
 import { formatCurrency } from '@/utils/formatters'
 import { getProductAccentColor } from '@/utils/colors'
+import { getProductCoverImage } from '@/utils/media'
 
 export function ProductCard({ product }: { product: Product }) {
   const isCompletelyOutOfStock =
@@ -11,6 +12,7 @@ export function ProductCard({ product }: { product: Product }) {
       product.sizes.every((s) => !s.inStock))
 
   const accent = getProductAccentColor(product.id)
+  const coverImage = getProductCoverImage(product)
 
   return (
     <Link
@@ -18,9 +20,9 @@ export function ProductCard({ product }: { product: Product }) {
       className="group block bg-white/95 rounded-3xl p-3 border-2 border-brand-200/80 hover:border-brand-500 shadow-xs hover:shadow-md transition-all duration-300"
     >
       <div className="relative aspect-[3/4] bg-brand-50 rounded-2xl overflow-hidden mb-3 border border-brand-100">
-        {product.images && product.images[0] ? (
+        {coverImage ? (
           <img
-            src={product.images[0]}
+            src={coverImage}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
           />

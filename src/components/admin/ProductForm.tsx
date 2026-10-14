@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { uploadImage } from '@/utils/storage'
-import { Product, ProductSize, Category } from '@/types'
-import { Trash2 } from 'lucide-react'
+import { uploadMedia, MAX_VIDEO_SIZE_BYTES } from '@/utils/storage'
+import { Product, ProductSize, Category, ProductMedia } from '@/types'
+import { getProductMedia } from '@/utils/media'
+import { Trash2, Video, Image as ImageIcon, Star } from 'lucide-react'
 
 interface ProductFormProps {
   initialData?: Product
@@ -22,7 +23,9 @@ export function ProductForm({ initialData }: ProductFormProps) {
 
   // Notice that sizes is now an array of ProductSize
   const [sizes, setSizes] = useState<ProductSize[]>(initialData?.sizes || [])
-  const [images, setImages] = useState<string[]>(initialData?.images || [])
+  const [media, setMedia] = useState<ProductMedia[]>(() =>
+    getProductMedia(initialData)
+  )
   const [isActive, setIsActive] = useState(initialData?.is_active ?? true)
 
   const [categories, setCategories] = useState<Category[]>([])
@@ -54,25 +57,61 @@ export function ProductForm({ initialData }: ProductFormProps) {
     )
   }
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return
     setLoading(true)
 
     const file = e.target.files[0]
-    const url = await uploadImage(file)
+    const url = await uploadMedia(file)
     if (url) {
-      setImages([...images, url])
+      const nextOrder =
+        media.length > 0 ? Math.max(...media.map((m) => m.order)) + 1 : 1
+      setMedia((prev) => [...prev, { url, type: 'image', order: nextOrder }])
     } else {
-      alert('Erro ao fazer upload da imagem.')
+      alert('Erro ao fazer upload da foto.')
     }
+    e.target.value = ''
     setLoading(false)
   }
 
-  const handleRemoveImage = (idxToRemove: number) => {
-    if (
-      window.confirm('Tem certeza que deseja excluir esta foto do produto?')
-    ) {
-      setImages(images.filter((_, i) => i !== idxToRemove))
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return
+    const file = e.target.files[0]
+
+    if (file.size > MAX_VIDEO_SIZE_BYTES) {
+      alert(
+        `O vídeo selecionado possui ${(file.size / (1024 * 1024)).toFixed(1)}MB. O limite máximo permitido para garantir velocidade e economia de dados é de 40MB. Por favor, envie um vídeo editado/mais curto.`
+      )
+      e.target.value = ''
+      return
+    }
+
+    setLoading(true)
+    const url = await uploadMedia(file)
+    if (url) {
+      const nextOrder =
+        media.length > 0 ? Math.max(...media.map((m) => m.order)) + 1 : 1
+      setMedia((prev) => [...prev, { url, type: 'video', order: nextOrder }])
+    } else {
+      alert('Erro ao fazer upload do vídeo.')
+    }
+    e.target.value = ''
+    setLoading(false)
+  }
+
+  const handleOrderChange = (idx: number, newOrderStr: string) => {
+    const parsed = parseInt(newOrderStr, 10)
+    const newOrder = isNaN(parsed) ? 1 : Math.max(1, parsed)
+    setMedia((prev) =>
+      prev.map((item, i) => (i === idx ? { ...item, order: newOrder } : item))
+    )
+  }
+
+  const handleRemoveMedia = (idxToRemove: number) => {
+    const item = media[idxToRemove]
+    const label = item?.type === 'video' ? 'este vídeo' : 'esta foto'
+    if (window.confirm(`Tem certeza que deseja excluir ${label} do produto?`)) {
+      setMedia((prev) => prev.filter((_, i) => i !== idxToRemove))
     }
   }
 
@@ -80,26 +119,79 @@ export function ProductForm({ initialData }: ProductFormProps) {
     e.preventDefault()
     setLoading(true)
 
+    // Ordena as mídias pelo campo de ordem definido pelo usuário
+    const sortedMedia = [...media].sort((a, b) => a.order - b.order)
+    const photos = sortedMedia
+      .filter((m) => m.type === 'image')
+      .map((m) => m.url)
+
+    // Alerta se não houver foto para capa
+    if (photos.length === 0 && sortedMedia.length > 0) {
+      const confirmNoPhoto = window.confirm(
+        'Atenção: Não há nenhuma foto cadastrada para este produto (apenas vídeos). A vitrine necessita de uma foto como capa estática. Deseja salvar mesmo assim?'
+      )
+      if (!confirmNoPhoto) {
+        setLoading(false)
+        return
+      }
+    }
+
     const productData = {
       name,
       description,
       price: parseFloat(price.replace(',', '.')),
       category_id: categoryId || null,
       sizes,
-      images,
+      images: photos,
+      media: sortedMedia,
       is_active: isActive,
       is_out_of_stock: false // Out of stock is now managed by sizes, but we keep the column if needed
     }
 
     if (initialData) {
-      const { error } = await supabase
+      let { error } = await supabase
         .from('products')
         .update(productData)
         .eq('id', initialData.id)
+
+      // Fallback defensivo: se a coluna 'media' ainda não foi criada no Supabase
+      if (error && error.message.includes('media')) {
+        const fallback = { ...productData }
+        delete (fallback as any).media
+        const fallbackRes = await supabase
+          .from('products')
+          .update(fallback)
+          .eq('id', initialData.id)
+        if (!fallbackRes.error) {
+          alert(
+            'Produto atualizado! Aviso: Para ativar vídeos permanentemente, execute o script SQL da migration no painel do Supabase.'
+          )
+          router.push('/admin')
+          return
+        }
+        error = fallbackRes.error
+      }
+
       if (error) alert('Erro ao atualizar: ' + error.message)
       else router.push('/admin')
     } else {
-      const { error } = await supabase.from('products').insert([productData])
+      let { error } = await supabase.from('products').insert([productData])
+
+      // Fallback defensivo para insert
+      if (error && error.message.includes('media')) {
+        const fallback = { ...productData }
+        delete (fallback as any).media
+        const fallbackRes = await supabase.from('products').insert([fallback])
+        if (!fallbackRes.error) {
+          alert(
+            'Produto cadastrado! Aviso: Para ativar vídeos permanentemente, execute o script SQL da migration no painel do Supabase.'
+          )
+          router.push('/admin')
+          return
+        }
+        error = fallbackRes.error
+      }
+
       if (error) alert('Erro ao criar: ' + error.message)
       else router.push('/admin')
     }
@@ -241,40 +333,124 @@ export function ProductForm({ initialData }: ProductFormProps) {
       )}
 
       <div>
-        <label className="block text-sm font-medium text-brand-800 mb-3">
-          Galeria de Imagens
-        </label>
-        <div className="flex gap-4 mb-4 flex-wrap">
-          {images.map((img, idx) => (
-            <div
-              key={idx}
-              className="w-28 h-36 relative bg-brand-50 rounded-xl overflow-hidden group border border-brand-200 shadow-sm"
-            >
-              <img
-                src={img}
-                alt="Preview"
-                className="w-full h-full object-cover"
-              />
-              <button
-                type="button"
-                onClick={() => handleRemoveImage(idx)}
-                className="absolute top-2 right-2 bg-red-500/90 text-white rounded-md w-8 h-8 flex items-center justify-center opacity-100 transition-opacity shadow-lg hover:bg-red-600"
-                title="Excluir foto"
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium text-brand-800">
+            Galeria de Mídias (Fotos e Vídeos)
+          </label>
+          <span className="text-xs text-brand-500">
+            {media.length} {media.length === 1 ? 'mídia' : 'mídias'}
+          </span>
+        </div>
+        <p className="text-xs text-brand-500 mb-4">
+          A vitrine principal e o carrinho sempre utilizarão a primeira foto
+          como capa estática. Ajuste os números de <strong>Ordem</strong> para
+          organizar como fotos e vídeos aparecem na página da peça.
+        </p>
+
+        <div className="flex gap-4 mb-4 flex-wrap items-start">
+          {media.map((item, idx) => {
+            const isLowestPhotoOrder =
+              item.type === 'image' &&
+              !media.some((m) => m.type === 'image' && m.order < item.order)
+
+            return (
+              <div
+                key={idx}
+                className="w-32 sm:w-36 flex flex-col bg-white rounded-2xl border-2 border-brand-200/90 shadow-xs overflow-hidden group hover:border-brand-400 transition-colors"
               >
-                <Trash2 size={16} />
-              </button>
-            </div>
-          ))}
-          <label className="w-28 h-36 flex flex-col items-center justify-center bg-brand-50 border-2 border-dashed border-brand-300 rounded-xl cursor-pointer hover:bg-brand-100 transition-colors text-brand-600 group">
-            <span className="text-3xl group-hover:scale-110 transition-transform">
-              +
+                <div className="h-36 relative bg-brand-50 overflow-hidden">
+                  {item.type === 'video' ? (
+                    <>
+                      <video
+                        src={item.url}
+                        className="w-full h-full object-cover"
+                        preload="metadata"
+                        muted
+                        playsInline
+                      />
+                      <div className="absolute top-2 left-2 bg-brand-900/85 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
+                        <Video size={11} /> Vídeo
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <img
+                        src={item.url}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                      {isLowestPhotoOrder && (
+                        <div className="absolute top-2 left-2 bg-amber-500/90 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
+                          <Star size={11} fill="white" /> Capa
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveMedia(idx)}
+                    className="absolute top-2 right-2 bg-red-500/90 text-white rounded-md w-7 h-7 flex items-center justify-center opacity-100 transition-opacity shadow-md hover:bg-red-600 cursor-pointer"
+                    title={
+                      item.type === 'video' ? 'Excluir vídeo' : 'Excluir foto'
+                    }
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+
+                <div className="p-2 bg-brand-50/70 border-t border-brand-100 flex items-center justify-between gap-1 text-xs text-brand-800">
+                  <span className="font-semibold text-[11px]">Ordem:</span>
+                  <input
+                    type="number"
+                    min="1"
+                    value={item.order}
+                    onChange={(e) => handleOrderChange(idx, e.target.value)}
+                    className="w-14 text-center font-bold bg-white border border-brand-300 rounded-md py-1 focus:ring-2 focus:ring-brand-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            )
+          })}
+
+          {/* Botão de Upload de Foto */}
+          <label className="w-32 sm:w-36 h-48 flex flex-col items-center justify-center bg-brand-50 border-2 border-dashed border-brand-300 rounded-2xl cursor-pointer hover:bg-brand-100 transition-all text-brand-600 group p-3 text-center shadow-2xs">
+            <ImageIcon
+              size={26}
+              className="group-hover:scale-110 transition-transform mb-1 text-brand-600"
+            />
+            <span className="text-xs font-bold leading-tight">
+              + Adicionar Foto
             </span>
-            <span className="text-xs mt-2 font-medium">Upload</span>
+            <span className="text-[10px] text-brand-400 mt-1">
+              JPG, PNG, WebP
+            </span>
             <input
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={handleImageUpload}
+              onChange={handlePhotoUpload}
+              disabled={loading}
+            />
+          </label>
+
+          {/* Botão de Upload de Vídeo */}
+          <label className="w-32 sm:w-36 h-48 flex flex-col items-center justify-center bg-sky-50/70 border-2 border-dashed border-sky-300 rounded-2xl cursor-pointer hover:bg-sky-100/70 transition-all text-sky-700 group p-3 text-center shadow-2xs">
+            <Video
+              size={26}
+              className="group-hover:scale-110 transition-transform mb-1 text-sky-600"
+            />
+            <span className="text-xs font-bold leading-tight">
+              + Adicionar Vídeo
+            </span>
+            <span className="text-[10px] text-sky-500 mt-1">
+              MP4, WebM (Até 40MB)
+            </span>
+            <input
+              type="file"
+              accept="video/*"
+              className="hidden"
+              onChange={handleVideoUpload}
               disabled={loading}
             />
           </label>

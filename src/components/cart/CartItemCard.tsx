@@ -2,6 +2,7 @@
 
 import { CartItem, useCartStore } from '@/store/useCartStore'
 import { formatCurrency } from '@/utils/formatters'
+import { getProductCoverImage } from '@/utils/media'
 import { Minus, Plus, Trash2 } from 'lucide-react'
 
 interface CartItemCardProps {
@@ -11,11 +12,9 @@ interface CartItemCardProps {
 export function CartItemCard({ item }: CartItemCardProps) {
   const { updateQuantity, removeItem } = useCartStore()
 
-  // Imagem real ou logo como fallback
+  // Capa estática real da peça ou logo como fallback
   const imageUrl =
-    item.product.images && item.product.images.length > 0
-      ? item.product.images[0]
-      : '/images/logo-sem-bg.png'
+    getProductCoverImage(item.product) || '/images/logo-sem-bg.png'
 
   return (
     <div className="flex gap-4 py-4 border-b border-brand-100">

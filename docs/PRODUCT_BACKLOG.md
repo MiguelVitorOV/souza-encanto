@@ -35,15 +35,15 @@
 - **US 5.3:** [x] Como cliente, quero ver um banner Hero acolhedor na página inicial destacando o carinho da marca, qualidade, conforto e produtos para todas as fases.
 - **US 5.4:** [x] Como administradora e cliente, quero que todos os textos, metatags de SEO, títulos de abas e rodapé sejam atualizados para "Mundo de Criança".
 
-## EPIC 6: Suporte a Vídeos de Demonstração e Ordenação Manual de Mídias (URGENTE)
+## EPIC 6: Suporte a Vídeos de Demonstração e Ordenação Manual de Mídias (CONCLUÍDO)
 
 **Objetivo:** Permitir que o lojista adicione vídeos curtos demonstrando o caimento, textura e detalhes das roupinhas infantis, ordenando manualmente fotos e vídeos por número de exibição.
 
-- **US 6.1:** Como administradora, no cadastro/edição de produtos, quero enviar vídeos curtos (até 40MB) além de fotos para a galeria de mídias.
-- **US 6.2:** Como administradora, quero definir a ordem de exibição de cada foto e vídeo digitando um número sequencial simples (ex: 1, 2, 3...), sem necessidade de arrastar elementos.
-- **US 6.3:** Como cliente na vitrine (Home) e no carrinho, quero que a capa exibida seja sempre uma foto de alta resolução (a primeira foto da galeria), garantindo carregamento instantâneo no celular.
-- **US 6.4:** Como cliente na vitrine, quero ver um pequeno indicador visual (selo de vídeo) nos cards dos produtos que possuem vídeo demonstrativo.
-- **US 6.5:** Como cliente na página de detalhes do produto, quero assistir aos vídeos com controles de reprodução (play/pause/mudo) e alternar entre fotos e vídeos respeitando a ordem definida pelo lojista.
+- **US 6.1:** [x] Como administradora, no cadastro/edição de produtos, quero enviar vídeos curtos (até 40MB) além de fotos para a galeria de mídias.
+- **US 6.2:** [x] Como administradora, quero definir a ordem de exibição de cada foto e vídeo digitando um número sequencial simples (ex: 1, 2, 3...), sem necessidade de arrastar elementos.
+- **US 6.3:** [x] Como cliente na vitrine (Home) e no carrinho, quero que a capa exibida seja sempre uma foto de alta resolução (a primeira foto da galeria), garantindo carregamento instantâneo no celular.
+- **US 6.4:** [x] Como cliente na vitrine, quero uma visualização limpa e focada no card do produto sem tags de vídeo poluindo a foto de capa.
+- **US 6.5:** [x] Como cliente na página de detalhes do produto, quero que o vídeo inicie automaticamente (autoplay em loop silencioso) assim que exibido, com controles para pausar e ativar som.
 
 ## EPIC 7: Categorização N:N e Filtros Avançados na Vitrine (NOVO)
 
