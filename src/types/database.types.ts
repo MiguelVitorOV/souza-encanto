@@ -30,13 +30,72 @@ export interface Database {
         }
         Relationships: []
       }
+      size_categories: {
+        Row: {
+          id: string
+          name: string
+          sizes: string[]
+          measurement_table: string | null
+          measurement_description: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          sizes?: string[]
+          measurement_table?: string | null
+          measurement_description?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          sizes?: string[]
+          measurement_table?: string | null
+          measurement_description?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      product_categories: {
+        Row: {
+          product_id: string
+          category_id: string
+        }
+        Insert: {
+          product_id: string
+          category_id: string
+        }
+        Update: {
+          product_id?: string
+          category_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'product_categories_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_categories_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'categories'
+            referencedColumns: ['id']
+          }
+        ]
+      }
       products: {
         Row: {
           id: string
           name: string
           description: string | null
           price: number
+          promotional_price: number | null
           category_id: string | null
+          size_category_id: string | null
           sizes: any
           images: string[]
           media?: any
@@ -49,7 +108,9 @@ export interface Database {
           name: string
           description?: string | null
           price: number
+          promotional_price?: number | null
           category_id?: string | null
+          size_category_id?: string | null
           sizes?: any
           images?: string[]
           media?: any
@@ -62,7 +123,9 @@ export interface Database {
           name?: string
           description?: string | null
           price?: number
+          promotional_price?: number | null
           category_id?: string | null
+          size_category_id?: string | null
           sizes?: any
           images?: string[]
           media?: any
@@ -76,6 +139,13 @@ export interface Database {
             columns: ['category_id']
             isOneToOne: false
             referencedRelation: 'categories'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'products_size_category_id_fkey'
+            columns: ['size_category_id']
+            isOneToOne: false
+            referencedRelation: 'size_categories'
             referencedColumns: ['id']
           }
         ]

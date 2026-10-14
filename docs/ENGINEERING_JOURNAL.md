@@ -58,6 +58,24 @@
 ### Lições Aprendidas
 
 - **Ordenação Numérica vs Drag-and-Drop em Mobile:** Utilizar campos de entrada numérica direta (`Ordem: [ N ]`) elimina a necessidade de bibliotecas pesadas de arrastar/soltar, remove conflitos com o gesto de scroll nativo em smartphones e fornece uma experiência previsível e direta para o lojista.
+
+---
+
+## Sprint 10: Banco de Dados e Migração Segura de Tamanhos e Categorias
+
+### Estruturas Criadas
+
+1. **Grades de Tamanhos (`size_categories`):**
+   - Tabela com colunas `id`, `name`, `sizes text[]`, `measurement_table text`, `measurement_description text` e RLS público para leitura e restrito para escrita.
+2. **Multi-Categorias N:N (`product_categories`):**
+   - Tabela de junção `product_id` e `category_id` com chaves estrangeiras em cascata, índices de busca para vitrine e RLS integrado.
+3. **Novas Colunas em Produtos (`products`):**
+   - `promotional_price DECIMAL(10,2)` e `size_category_id UUID REFERENCES size_categories(id) ON DELETE SET NULL`.
+4. **Migração Segura de Dados e Idempotência:**
+   - Criação da categoria transitória "A mudar" (`slug: 'a-mudar'`).
+   - Associação retrocompatível de todos os produtos existentes à categoria "A mudar" e às suas respectivas categorias originais.
+   - Script futuro preparado para descarte seguro da coluna legada `category_id` assim que o lojista concluir a recategorização.
+
 - **Camada de Retrocompatibilidade (Dual-Write):** Ao introduzir uma estrutura mais rica em JSONB (`media`), manter a sincronização com a coluna antiga (`images`) garante que nenhum componente legado quebre e dispensa migrações destrutivas.
 
 ### Débitos Técnicos

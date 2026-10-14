@@ -50,10 +50,10 @@ Este plano de implementação organiza as novas entregas em fases atômicas, min
 
 **Foco:** Criar as novas estruturas no Supabase preservando 100% dos produtos já cadastrados.
 
-- [ ] **10.1 Schema de Categorias de Tamanho:** Criar tabela `size_categories` (id, name, sizes text[], measurement_table text, measurement_description text, created_at) com RLS público para leitura e autenticado para escrita.
-- [ ] **10.2 Schema de Multi-Categorias:** Criar tabela de junção `product_categories` (product_id uuid, category_id uuid, primary key) com RLS apropriado.
-- [ ] **10.3 Campos de Desconto e Grade em Produtos:** Adicionar colunas `promotional_price DECIMAL(10,2)` e `size_category_id UUID REFERENCES size_categories(id) ON DELETE SET NULL` na tabela `products`.
-- [ ] **10.4 Script de Migração de Dados:**
+- [x] **10.1 Schema de Categorias de Tamanho:** Criar tabela `size_categories` (id, name, sizes text[], measurement_table text, measurement_description text, created_at) com RLS público para leitura e autenticado para escrita.
+- [x] **10.2 Schema de Multi-Categorias:** Criar tabela de junção `product_categories` (product_id uuid, category_id uuid, primary key) com RLS apropriado.
+- [x] **10.3 Campos de Desconto e Grade em Produtos:** Adicionar colunas `promotional_price DECIMAL(10,2)` e `size_category_id UUID REFERENCES size_categories(id) ON DELETE SET NULL` na tabela `products`.
+- [x] **10.4 Script de Migração de Dados:**
   - Criar categoria padrão "A mudar" na tabela `categories`.
   - Migrar referências existentes de `products.category_id` para a tabela `product_categories` apontando para "A mudar".
   - Remover com segurança as categorias antigas de lingerie que não possuem mais produtos ativos.
