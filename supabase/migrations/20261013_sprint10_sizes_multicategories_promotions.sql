@@ -46,6 +46,11 @@ CREATE POLICY "Admins can delete size_categories"
   TO authenticated
   USING (true);
 
+-- Permissões de tabela (GRANT) em size_categories
+GRANT ALL ON TABLE public.size_categories TO authenticated;
+GRANT ALL ON TABLE public.size_categories TO service_role;
+GRANT SELECT ON TABLE public.size_categories TO anon;
+
 -- 2. TABELA DE JUNÇÃO MULTI-CATEGORIAS (N:N)
 CREATE TABLE IF NOT EXISTS public.product_categories (
   product_id UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
@@ -89,6 +94,11 @@ CREATE POLICY "Admins can delete product_categories"
   FOR DELETE
   TO authenticated
   USING (true);
+
+-- Permissões de tabela (GRANT) em product_categories
+GRANT ALL ON TABLE public.product_categories TO authenticated;
+GRANT ALL ON TABLE public.product_categories TO service_role;
+GRANT SELECT ON TABLE public.product_categories TO anon;
 
 -- 3. ADICIONAR CAMPOS DE DESCONTO E GRADE NA TABELA PRODUCTS
 ALTER TABLE public.products

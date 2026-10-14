@@ -49,8 +49,8 @@
 
 **Objetivo:** Permitir que uma roupa pertença a múltiplas categorias e fornecer filtros combináveis por tags/chips intuitivos.
 
-- **US 7.1:** Como administradora, no cadastro/edição do produto, quero selecionar múltiplas categorias simultaneamente através de tags/checkboxes simples.
-- **US 7.2:** Como administradora, quero poder migrar com segurança as categorias antigas: os produtos existentes recebem a categoria "A mudar", permitindo a exclusão segura das categorias de lingerie legadas.
+- **US 7.1:** [x] Como administradora, no cadastro/edição do produto, quero selecionar múltiplas categorias simultaneamente através de tags/checkboxes simples.
+- **US 7.2:** [x] Como administradora, quero poder migrar com segurança as categorias antigas: os produtos existentes recebem a categoria "A mudar", permitindo a exclusão segura das categorias de lingerie legadas.
 - **US 7.3:** Como cliente na vitrine, quero selecionar múltiplas categorias através de chips interativos (ex: "Feminino" + "Até 4 anos") vendo os produtos que combinam os filtros.
 - **US 7.4:** Como cliente, quero desmarcar tags facilmente ou clicar em "Limpar filtros" para voltar a ver todos os produtos.
 
@@ -58,9 +58,9 @@
 
 **Objetivo:** Permitir a criação de categorias de tamanhos personalizáveis pelo admin com tabela de medidas e texto explicativo, consultável pelo cliente.
 
-- **US 8.1:** Como administradora, quero ter um CRUD de Categorias de Tamanho (`/admin/tamanhos`), definindo o nome da grade (ex: "Bebê", "Infantil 4 a 10") e a lista de tamanhos disponíveis.
-- **US 8.2:** Como administradora, quero preencher a Tabela de Medidas (texto formatado com seções de blusa, shorts, etc.) e o texto descritivo de instruções/variações, com pré-visualização em tempo real.
-- **US 8.3:** Como administradora, no cadastro do produto, quero selecionar a qual Categoria de Tamanho ele pertence, carregando automaticamente os tamanhos daquela grade para marcar presença e estoque.
+- **US 8.1:** [x] Como administradora, quero ter um CRUD de Categorias de Tamanho (`/admin/tamanhos`), definindo o nome da grade (ex: "Bebê", "Infantil 4 a 10") e a lista de tamanhos disponíveis.
+- **US 8.2:** [x] Como administradora, quero preencher a Tabela de Medidas (texto formatado com seções de blusa, shorts, etc.) e o texto descritivo de instruções/variações, com pré-visualização em tempo real.
+- **US 8.3:** [x] Como administradora, no cadastro do produto, quero selecionar a qual Categoria de Tamanho ele pertence, carregando automaticamente os tamanhos daquela grade para marcar presença e estoque.
 - **US 8.4:** Como cliente na página do produto, quero visualizar os tamanhos daquela grade e ter um botão "📏 Tabela de Medidas" que abre um modal elegante com as medidas e instruções daquela categoria.
 - **US 8.5:** Como cliente, caso o produto não tenha categoria de tamanho vinculada (ex: acessórios/laços), o botão de tabela de medidas deve ser ocultado de forma transparente.
 
@@ -68,7 +68,7 @@
 
 **Objetivo:** Destacar ofertas na vitrine e nos detalhes do produto, com cálculo automático e sincronização flexível.
 
-- **US 9.1:** Como administradora, no formulário do produto, quero informar o preço promocional OU a porcentagem de desconto, vendo ambos os campos se sincronizarem em tempo real.
+- **US 9.1:** [x] Como administradora, no formulário do produto, quero informar o preço promocional OU a porcentagem de desconto, vendo ambos os campos se sincronizarem em tempo real.
 - **US 9.2:** Como cliente na vitrine, quero ver uma tag chamativa de desconto (ex: "-20% OFF") nos produtos em oferta.
 - **US 9.3:** Como cliente, na vitrine e na página de detalhes, quero ver o preço original riscado e o preço promocional em destaque.
 - **US 9.4:** Como cliente, ao adicionar um produto em oferta ao carrinho e finalizar via WhatsApp, o valor considerado deve ser o preço com desconto, com menção explícita à promoção na mensagem enviada.

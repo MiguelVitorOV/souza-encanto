@@ -80,4 +80,26 @@
 
 ### Débitos Técnicos
 
-- **Execução da Migration SQL em Produção:** Executar `ALTER TABLE public.products ADD COLUMN IF NOT EXISTS media JSONB DEFAULT '[]'::jsonb;` diretamente no SQL Editor do Supabase (o código já possui fallback resiliente ativo).
+- **Execução da Migration SQL em Produção:** Executar a migration SQL da Sprint 10 no SQL Editor do Supabase (o código já possui fallbacks defensivos ativos).
+
+---
+
+## Sprint 11: Painel Admin - Gestão de Tamanhos, Categorias e Promoções
+
+### Funcionalidades Implementadas
+
+1. **Gestão de Categorias de Tamanho (`/admin/tamanhos`):**
+   - Listagem completa das grades de tamanho com chips informativos, status da tabela de medidas e ações de edição/exclusão.
+   - Formulário com chips interativos de inclusão rápida (presets: Bebê, Primeiros Passos, Infantil, Juvenil e Tamanho Único) e digitação livre.
+   - Editor de texto formatado com **painel de pré-visualização ao vivo (Live Preview)** renderizando o layout exato que o cliente verá no modal na vitrine.
+2. **Atualização Completa do `ProductForm`:**
+   - **Multi-Categorias N:N:** Seleção visual por chips com sincronização automática na tabela `product_categories` e dual-write no campo legado `category_id`.
+   - **Grades de Tamanho Dinâmicas:** Vínculo opcional à grade (`size_category_id`) que carrega dinamicamente os tamanhos e controla estoque por tamanho individual.
+   - **Preço e Desconto Bidirecionais:** Sincronização em tempo real entre Preço Original, Preço Promocional e % de Desconto, com badge chamativo para ofertas ativas.
+3. **Navegação do Admin:**
+   - Adicionada a aba "Tamanhos / Medidas" no `AdminHeader`, totalmente integrada no desktop e mobile.
+
+### Lições Aprendidas
+
+- **Dual-Write para Migração Contínua sem Downtime:** Salvar simultaneamente na tabela relacional de junção (`product_categories`) e no campo legado (`category_id`) permite que o painel administrativo adote novos recursos imediatamente enquanto a vitrine pública aguarda a Sprint 12 sem interrupções.
+- **Sincronização Bidirecional sem Loops:** O cálculo reativo entre Preço Promocional e Desconto deve validar intervalos válidos e disparar unicamente quando os valores efetivamente mudam, evitando loops e inconsistências de arredondamento.

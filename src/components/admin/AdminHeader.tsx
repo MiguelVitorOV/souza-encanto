@@ -63,6 +63,16 @@ export function AdminHeader() {
             Categorias
           </Link>
           <Link
+            href="/admin/tamanhos"
+            className={`whitespace-nowrap pb-1 font-medium transition-colors ${
+              isActive('/admin/tamanhos')
+                ? 'text-brand-700 border-b-2 border-brand-700'
+                : 'text-brand-900/60 hover:text-brand-900'
+            }`}
+          >
+            Tamanhos / Medidas
+          </Link>
+          <Link
             href="/admin/interessados"
             className={`whitespace-nowrap pb-1 font-medium transition-colors ${
               isActive('/admin/interessados')

@@ -1,16 +1,52 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { uploadMedia, MAX_VIDEO_SIZE_BYTES } from '@/utils/storage'
-import { Product, ProductSize, Category, ProductMedia } from '@/types'
+import {
+  Product,
+  ProductSize,
+  Category,
+  SizeCategory,
+  ProductMedia
+} from '@/types'
 import { getProductMedia } from '@/utils/media'
-import { Trash2, Video, Image as ImageIcon, Star } from 'lucide-react'
+import {
+  Trash2,
+  Video,
+  Image as ImageIcon,
+  Star,
+  Check,
+  Tag,
+  Ruler,
+  Percent,
+  Sparkles,
+  AlertCircle
+} from 'lucide-react'
 
 interface ProductFormProps {
   initialData?: Product
 }
+
+const DEFAULT_SIZE_OPTIONS = [
+  'RN',
+  'P',
+  'M',
+  'G',
+  'GG',
+  '01',
+  '02',
+  '03',
+  '04',
+  '06',
+  '08',
+  '10',
+  '12',
+  '14',
+  '16',
+  'U'
+]
 
 export function ProductForm({ initialData }: ProductFormProps) {
   const router = useRouter()
@@ -18,30 +54,183 @@ export function ProductForm({ initialData }: ProductFormProps) {
 
   const [name, setName] = useState(initialData?.name || '')
   const [description, setDescription] = useState(initialData?.description || '')
-  const [price, setPrice] = useState(initialData?.price?.toString() || '')
-  const [categoryId, setCategoryId] = useState(initialData?.category_id || '')
 
-  // Notice that sizes is now an array of ProductSize
+  // Preço, Promoção e Desconto
+  const [price, setPrice] = useState(initialData?.price?.toString() || '')
+  const [promotionalPrice, setPromotionalPrice] = useState(
+    initialData?.promotional_price
+      ? initialData.promotional_price.toString()
+      : ''
+  )
+  const [discountPercent, setDiscountPercent] = useState(() => {
+    if (initialData?.promotional_price && initialData?.price) {
+      const p = initialData.price
+      const promo = initialData.promotional_price
+      if (p > 0 && promo < p) {
+        return Math.round(((p - promo) / p) * 100).toString()
+      }
+    }
+    return ''
+  })
+
+  // Multi-Categorias N:N
+  const [categories, setCategories] = useState<Category[]>([])
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(
+    initialData?.category_ids ||
+      (initialData?.category_id ? [initialData.category_id] : [])
+  )
+
+  // Grade de Tamanhos
+  const [sizeCategories, setSizeCategories] = useState<SizeCategory[]>([])
+  const [selectedSizeCategoryId, setSelectedSizeCategoryId] = useState<string>(
+    initialData?.size_category_id || ''
+  )
+
+  // Tamanhos e Mídias
   const [sizes, setSizes] = useState<ProductSize[]>(initialData?.sizes || [])
   const [media, setMedia] = useState<ProductMedia[]>(() =>
     getProductMedia(initialData)
   )
   const [isActive, setIsActive] = useState(initialData?.is_active ?? true)
 
-  const [categories, setCategories] = useState<Category[]>([])
-
-  const sizeOptions = ['PP', 'P', 'M', 'G', 'GG', 'XG', 'U']
-
+  // Carrega Categorias, Grades de Tamanhos e Relações N:N existentes
   useEffect(() => {
-    async function fetchCategories() {
-      const { data } = await supabase
+    async function loadData() {
+      // 1. Categorias
+      const { data: cats } = await supabase
         .from('categories')
         .select('*')
         .order('name')
-      if (data) setCategories(data)
+      if (cats) setCategories(cats)
+
+      // 2. Grades de Tamanhos
+      const { data: sizeCats } = await supabase
+        .from('size_categories')
+        .select('*')
+        .order('name')
+      if (sizeCats) setSizeCategories(sizeCats)
+
+      // 3. Vínculos de Multi-Categorias se for edição
+      if (initialData?.id) {
+        const { data: pcData } = await supabase
+          .from('product_categories')
+          .select('category_id')
+          .eq('product_id', initialData.id)
+
+        if (pcData && pcData.length > 0) {
+          const ids = pcData.map(
+            (row: { category_id: string }) => row.category_id
+          )
+          setSelectedCategoryIds(ids)
+        } else if (initialData.category_id) {
+          setSelectedCategoryIds([initialData.category_id])
+        }
+      }
     }
-    fetchCategories()
-  }, [])
+    loadData()
+  }, [initialData?.id, initialData?.category_id])
+
+  // Lista dinâmica de opções de tamanhos baseada na grade selecionada
+  const activeSizeOptions = useMemo(() => {
+    if (selectedSizeCategoryId) {
+      const matched = sizeCategories.find(
+        (g) => g.id === selectedSizeCategoryId
+      )
+      if (matched && matched.sizes.length > 0) {
+        return matched.sizes
+      }
+    }
+    return DEFAULT_SIZE_OPTIONS
+  }, [selectedSizeCategoryId, sizeCategories])
+
+  // --- Lógica de Preço e Desconto Bidirecional em Tempo Real ---
+  const handlePriceChange = (newVal: string) => {
+    setPrice(newVal)
+    const p = parseFloat(newVal.replace(',', '.'))
+    const disc = parseFloat(discountPercent)
+
+    if (!isNaN(p) && p > 0 && !isNaN(disc) && disc > 0 && disc < 100) {
+      const calculatedPromo = (p * (1 - disc / 100)).toFixed(2)
+      setPromotionalPrice(calculatedPromo)
+    } else {
+      const promo = parseFloat(promotionalPrice.replace(',', '.'))
+      if (!isNaN(p) && p > 0 && !isNaN(promo) && promo > 0 && promo < p) {
+        const calculatedDisc = Math.round(((p - promo) / p) * 100).toString()
+        setDiscountPercent(calculatedDisc)
+      }
+    }
+  }
+
+  const handlePromotionalPriceChange = (newVal: string) => {
+    setPromotionalPrice(newVal)
+    if (!newVal || newVal.trim() === '') {
+      setDiscountPercent('')
+      return
+    }
+
+    const p = parseFloat(price.replace(',', '.'))
+    const promo = parseFloat(newVal.replace(',', '.'))
+
+    if (!isNaN(p) && p > 0 && !isNaN(promo)) {
+      if (promo > 0 && promo < p) {
+        const calculatedDisc = Math.round(((p - promo) / p) * 100).toString()
+        setDiscountPercent(calculatedDisc)
+      } else {
+        setDiscountPercent('')
+      }
+    }
+  }
+
+  const handleDiscountPercentChange = (newVal: string) => {
+    setDiscountPercent(newVal)
+    if (!newVal || newVal.trim() === '') {
+      setPromotionalPrice('')
+      return
+    }
+
+    const p = parseFloat(price.replace(',', '.'))
+    const disc = parseFloat(newVal)
+
+    if (!isNaN(p) && p > 0 && !isNaN(disc)) {
+      if (disc > 0 && disc < 100) {
+        const calculatedPromo = (p * (1 - disc / 100)).toFixed(2)
+        setPromotionalPrice(calculatedPromo)
+      } else if (disc >= 100) {
+        setPromotionalPrice('0.00')
+      }
+    }
+  }
+
+  // Multi-Categorias Toggle
+  const toggleCategory = (categoryId: string) => {
+    setSelectedCategoryIds((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId]
+    )
+  }
+
+  // Grade de Tamanhos Change
+  const handleSizeCategoryChange = (gradeId: string) => {
+    setSelectedSizeCategoryId(gradeId)
+    if (gradeId) {
+      const grade = sizeCategories.find((g) => g.id === gradeId)
+      if (grade && grade.sizes.length > 0) {
+        // Se a peça não tinha tamanhos, inclui os da grade automaticamente
+        if (sizes.length === 0) {
+          setSizes(grade.sizes.map((s) => ({ size: s, inStock: true })))
+        }
+      }
+    }
+  }
+
+  const selectAllGradeSizes = () => {
+    setSizes(activeSizeOptions.map((s) => ({ size: s, inStock: true })))
+  }
+
+  const clearAllSizes = () => {
+    setSizes([])
+  }
 
   const toggleSizeInclusion = (size: string) => {
     if (sizes.find((s) => s.size === size)) {
@@ -57,6 +246,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
     )
   }
 
+  // Upload de Foto
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return
     setLoading(true)
@@ -74,6 +264,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
     setLoading(false)
   }
 
+  // Upload de Vídeo com limite rígido de 40MB
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return
     const file = e.target.files[0]
@@ -119,6 +310,26 @@ export function ProductForm({ initialData }: ProductFormProps) {
     e.preventDefault()
     setLoading(true)
 
+    const normalPrice = parseFloat(price.replace(',', '.'))
+    const rawPromo = promotionalPrice
+      ? parseFloat(promotionalPrice.replace(',', '.'))
+      : null
+    const validPromo =
+      rawPromo !== null &&
+      !isNaN(rawPromo) &&
+      rawPromo > 0 &&
+      rawPromo < normalPrice
+        ? rawPromo
+        : null
+
+    if (rawPromo !== null && rawPromo >= normalPrice) {
+      alert(
+        'Atenção: O preço promocional deve ser menor do que o preço original!'
+      )
+      setLoading(false)
+      return
+    }
+
     // Ordena as mídias pelo campo de ordem definido pelo usuário
     const sortedMedia = [...media].sort((a, b) => a.order - b.order)
     const photos = sortedMedia
@@ -136,212 +347,433 @@ export function ProductForm({ initialData }: ProductFormProps) {
       }
     }
 
-    const productData = {
+    // Prepara payload com dual-write (category_id legado + suporte N:N)
+    const productPayload = {
       name,
-      description,
-      price: parseFloat(price.replace(',', '.')),
-      category_id: categoryId || null,
+      description: description || null,
+      price: normalPrice,
+      promotional_price: validPromo,
+      size_category_id: selectedSizeCategoryId || null,
+      category_id: selectedCategoryIds[0] || null, // Dual-write retrocompatível
       sizes,
       images: photos,
       media: sortedMedia,
       is_active: isActive,
-      is_out_of_stock: false // Out of stock is now managed by sizes, but we keep the column if needed
+      is_out_of_stock: false
     }
 
+    let targetProductId = initialData?.id
+
     if (initialData) {
+      // 1. Atualizar produto
       let { error } = await supabase
         .from('products')
-        .update(productData)
+        .update(productPayload)
         .eq('id', initialData.id)
 
-      // Fallback defensivo: se a coluna 'media' ainda não foi criada no Supabase
-      if (error && error.message.includes('media')) {
-        const fallback = { ...productData }
-        delete (fallback as any).media
+      // Fallback defensivo caso colunas novas ainda não existam no Supabase
+      if (
+        error &&
+        (error.message.includes('promotional_price') ||
+          error.message.includes('size_category_id'))
+      ) {
+        const fallback = { ...productPayload }
+        delete (fallback as any).promotional_price
+        delete (fallback as any).size_category_id
         const fallbackRes = await supabase
           .from('products')
           .update(fallback)
           .eq('id', initialData.id)
-        if (!fallbackRes.error) {
-          alert(
-            'Produto atualizado! Aviso: Para ativar vídeos permanentemente, execute o script SQL da migration no painel do Supabase.'
-          )
-          router.push('/admin')
-          return
-        }
         error = fallbackRes.error
       }
 
-      if (error) alert('Erro ao atualizar: ' + error.message)
-      else router.push('/admin')
+      if (error) {
+        alert('Erro ao atualizar produto: ' + error.message)
+        setLoading(false)
+        return
+      }
     } else {
-      let { error } = await supabase.from('products').insert([productData])
+      // 1. Inserir produto
+      let { data, error } = await supabase
+        .from('products')
+        .insert([productPayload])
+        .select('id')
+        .single()
 
-      // Fallback defensivo para insert
-      if (error && error.message.includes('media')) {
-        const fallback = { ...productData }
-        delete (fallback as any).media
-        const fallbackRes = await supabase.from('products').insert([fallback])
-        if (!fallbackRes.error) {
-          alert(
-            'Produto cadastrado! Aviso: Para ativar vídeos permanentemente, execute o script SQL da migration no painel do Supabase.'
-          )
-          router.push('/admin')
-          return
-        }
+      // Fallback defensivo
+      if (
+        error &&
+        (error.message.includes('promotional_price') ||
+          error.message.includes('size_category_id'))
+      ) {
+        const fallback = { ...productPayload }
+        delete (fallback as any).promotional_price
+        delete (fallback as any).size_category_id
+        const fallbackRes = await supabase
+          .from('products')
+          .insert([fallback])
+          .select('id')
+          .single()
+        data = fallbackRes.data
         error = fallbackRes.error
       }
 
-      if (error) alert('Erro ao criar: ' + error.message)
-      else router.push('/admin')
+      if (error || !data) {
+        alert(
+          'Erro ao cadastrar produto: ' +
+            (error?.message || 'Falha ao obter ID')
+        )
+        setLoading(false)
+        return
+      }
+      targetProductId = data.id
     }
 
+    // 2. Sincronizar Multi-Categorias N:N na tabela product_categories
+    if (targetProductId) {
+      // Deleta categorias associadas anteriores
+      await supabase
+        .from('product_categories')
+        .delete()
+        .eq('product_id', targetProductId)
+
+      // Insere novas categorias selecionadas
+      if (selectedCategoryIds.length > 0) {
+        const links = selectedCategoryIds.map((cid) => ({
+          product_id: targetProductId!,
+          category_id: cid
+        }))
+        const { error: linkError } = await supabase
+          .from('product_categories')
+          .insert(links)
+
+        if (linkError) {
+          console.warn(
+            'Aviso: Falha ao sincronizar product_categories:',
+            linkError.message
+          )
+        }
+      }
+    }
+
+    router.push('/admin')
     setLoading(false)
   }
+
+  const isPromoActive =
+    promotionalPrice &&
+    parseFloat(promotionalPrice.replace(',', '.')) > 0 &&
+    parseFloat(promotionalPrice.replace(',', '.')) <
+      parseFloat(price.replace(',', '.'))
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-6 bg-white p-8 rounded-2xl shadow-sm border border-brand-100"
+      className="space-y-8 bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-brand-100"
     >
+      {/* Status Ativo / Inativo */}
       <div className="flex items-center gap-3 pb-4 border-b border-brand-100">
         <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
             checked={isActive}
             onChange={(e) => setIsActive(e.target.checked)}
-            className="w-5 h-5 text-brand-700 rounded focus:ring-brand-500"
+            className="w-5 h-5 text-brand-700 rounded focus:ring-brand-500 cursor-pointer"
           />
-          <span className="font-medium text-brand-900">
+          <span className="font-bold text-brand-900 text-sm sm:text-base">
             Produto Ativo (Visível na loja)
           </span>
         </label>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Nome e Descrição */}
+      <div className="grid grid-cols-1 gap-6">
         <div>
-          <label className="block text-sm font-medium text-brand-800 mb-2">
-            Nome do Produto
+          <label className="block text-sm font-bold text-brand-900 mb-2">
+            Nome da Peça *
           </label>
           <input
             required
             type="text"
+            placeholder="Ex: Conjunto Moletom Ursinho Avelã"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full p-3 border border-brand-200 rounded-lg focus:ring-2 focus:ring-brand-400 focus:outline-none bg-brand-50/50"
+            className="w-full p-3.5 border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-400 focus:outline-none bg-brand-50/40 text-brand-900 font-medium"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-brand-800 mb-2">
-            Categoria
+          <label className="block text-sm font-bold text-brand-900 mb-2">
+            Descrição e Detalhes
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+            placeholder="Descreva o tecido, toque, detalhes da estampa e cuidados especiais com a roupinha..."
+            className="w-full p-3.5 border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-400 focus:outline-none bg-brand-50/40 text-brand-900 font-medium"
+          />
+        </div>
+      </div>
+
+      {/* SEÇÃO 1: PREÇO, DESCONTO E PROMOÇÃO BIDIRECIONAL */}
+      <div className="p-5 sm:p-6 bg-brand-50/60 rounded-2xl border border-brand-200/80 space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <Tag size={18} className="text-brand-700" />
+            <h3 className="font-fredoka text-base sm:text-lg text-brand-900 font-bold">
+              Preço e Promoções
+            </h3>
+          </div>
+          {isPromoActive && (
+            <span className="bg-rose-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-xs flex items-center gap-1.5 animate-pulse">
+              <Sparkles size={13} /> {discountPercent}% OFF Ativo
+            </span>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Preço Original */}
+          <div>
+            <label className="block text-xs font-bold text-brand-900/80 mb-1.5">
+              Preço Original (R$) *
+            </label>
+            <input
+              required
+              type="number"
+              step="0.01"
+              min="0.01"
+              placeholder="0,00"
+              value={price}
+              onChange={(e) => handlePriceChange(e.target.value)}
+              className="w-full p-3 border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-400 focus:outline-none bg-white text-brand-900 font-bold text-base"
+            />
+          </div>
+
+          {/* Preço Promocional */}
+          <div>
+            <label className="block text-xs font-bold text-brand-900/80 mb-1.5">
+              Preço Promocional (R$){' '}
+              <span className="text-stone-400 font-normal">(Opcional)</span>
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="0,00"
+              value={promotionalPrice}
+              onChange={(e) => handlePromotionalPriceChange(e.target.value)}
+              className="w-full p-3 border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-400 focus:outline-none bg-white text-brand-900 font-bold text-base"
+            />
+          </div>
+
+          {/* Porcentagem de Desconto */}
+          <div>
+            <label className="block text-xs font-bold text-brand-900/80 mb-1.5">
+              Desconto (%){' '}
+              <span className="text-stone-400 font-normal">(Sincronizado)</span>
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                min="0"
+                max="99"
+                placeholder="0"
+                value={discountPercent}
+                onChange={(e) => handleDiscountPercentChange(e.target.value)}
+                className="w-full p-3 pr-10 border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-400 focus:outline-none bg-white text-brand-900 font-bold text-base"
+              />
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 font-bold text-sm pointer-events-none">
+                %
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-xs text-brand-900/60 leading-relaxed">
+          * A sincronização é automática: ao preencher o valor com desconto, a
+          porcentagem é calculada em tempo real (e vice-versa). Peças com preço
+          promocional ganham destaque visual e badge especial na vitrine.
+        </p>
+      </div>
+
+      {/* SEÇÃO 2: MULTI-CATEGORIAS (N:N) */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-bold text-brand-900">
+            Categorias da Peça (Multi-Seleção)
+          </label>
+          <span className="text-xs bg-brand-100 text-brand-800 font-bold px-2.5 py-0.5 rounded-full">
+            {selectedCategoryIds.length} selecionada(s)
+          </span>
+        </div>
+        <p className="text-xs text-brand-900/60 mb-3">
+          Uma roupinha pode pertencer a mais de uma categoria (ex: "Feminino" e
+          "Até 4 anos"). Clique nas tags para marcar ou desmarcar:
+        </p>
+
+        {categories.length === 0 ? (
+          <div className="p-4 bg-brand-50/50 rounded-xl border border-brand-200 text-xs text-brand-900/60">
+            Nenhuma categoria encontrada. Cadastre categorias no menu superior.
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2 p-3 bg-brand-50/40 rounded-xl border border-brand-200/70">
+            {categories.map((cat) => {
+              const isSelected = selectedCategoryIds.includes(cat.id)
+              const isAMudar = cat.slug === 'a-mudar'
+
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => toggleCategory(cat.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
+                    isSelected
+                      ? isAMudar
+                        ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
+                        : 'bg-brand-700 text-white border-brand-800 shadow-xs scale-102'
+                      : 'bg-white text-brand-900 border-brand-200 hover:border-brand-400 hover:bg-brand-50'
+                  }`}
+                >
+                  {isSelected && <Check size={13} className="shrink-0" />}
+                  {cat.name}
+                  {isAMudar && (
+                    <span className="text-[10px] bg-amber-200 text-amber-950 px-1 rounded ml-1 font-normal">
+                      Pendente
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* SEÇÃO 3: GRADE DE TAMANHOS E TABELA DE MEDIDAS */}
+      <div className="p-5 sm:p-6 bg-brand-50/40 rounded-2xl border border-brand-200/80 space-y-4">
+        <div className="flex items-center gap-2">
+          <Ruler size={18} className="text-brand-700" />
+          <h3 className="font-fredoka text-base sm:text-lg text-brand-900 font-bold">
+            Grade de Tamanhos & Medidas
+          </h3>
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-brand-900/80 mb-1.5">
+            Selecione a Grade de Medidas da Roupinha
           </label>
           <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full p-3 border border-brand-200 rounded-lg focus:ring-2 focus:ring-brand-400 focus:outline-none bg-brand-50/50"
+            value={selectedSizeCategoryId}
+            onChange={(e) => handleSizeCategoryChange(e.target.value)}
+            className="w-full p-3 border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-400 focus:outline-none bg-white text-brand-900 font-medium text-sm"
           >
-            <option value="">Selecione uma categoria...</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
+            <option value="">
+              Nenhuma / Tamanhos livres (sem tabela oficial de medidas)
+            </option>
+            {sizeCategories.map((g) => (
+              <option key={g.id} value={g.id}>
+                {g.name} — ({g.sizes.join(', ')})
               </option>
             ))}
           </select>
+          <p className="text-xs text-brand-900/60 mt-1">
+            Ao vincular uma grade, a página do produto exibirá o botão "📏
+            Tabela de Medidas" para os clientes consultarem as medidas e
+            orientações.
+          </p>
         </div>
-      </div>
 
-      <div>
-        <label className="block text-sm font-medium text-brand-800 mb-2">
-          Preço (R$)
-        </label>
-        <input
-          required
-          type="number"
-          step="0.01"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          className="w-full p-3 border border-brand-200 rounded-lg focus:ring-2 focus:ring-brand-400 focus:outline-none bg-brand-50/50"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-brand-800 mb-2">
-          Descrição
-        </label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={4}
-          className="w-full p-3 border border-brand-200 rounded-lg focus:ring-2 focus:ring-brand-400 focus:outline-none bg-brand-50/50"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-brand-800 mb-3">
-          Tamanhos Disponíveis na Peça
-        </label>
-        <p className="text-xs text-brand-500 mb-3">
-          Selecione quais tamanhos esta peça possui, independente de ter no
-          estoque agora.
-        </p>
-        <div className="flex gap-3 flex-wrap">
-          {sizeOptions.map((size) => {
-            const hasSize = !!sizes.find((s) => s.size === size)
-            return (
+        {/* Seleção dos Tamanhos Disponíveis nesta Peça */}
+        <div>
+          <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+            <span className="text-xs font-bold text-brand-900/80">
+              Tamanhos Produzidos nesta Peça:
+            </span>
+            <div className="flex gap-2">
               <button
-                key={size}
                 type="button"
-                onClick={() => toggleSizeInclusion(size)}
-                className={`w-12 h-12 rounded-full font-medium transition-colors border-2 ${hasSize ? 'bg-brand-700 text-white border-brand-700 shadow-md' : 'bg-brand-50 text-brand-700 border-brand-200 hover:bg-brand-100'}`}
+                onClick={selectAllGradeSizes}
+                className="text-[11px] text-brand-700 hover:text-brand-900 font-bold hover:underline cursor-pointer"
               >
-                {size}
+                Marcar todos
               </button>
-            )
-          })}
-        </div>
-      </div>
+              <span className="text-stone-300">|</span>
+              <button
+                type="button"
+                onClick={clearAllSizes}
+                className="text-[11px] text-stone-500 hover:text-red-600 font-bold hover:underline cursor-pointer"
+              >
+                Limpar
+              </button>
+            </div>
+          </div>
 
-      {sizes.length > 0 && (
-        <div className="p-5 bg-brand-50/80 rounded-xl border border-brand-100">
-          <label className="block text-sm font-medium text-brand-800 mb-3">
-            Status de Estoque por Tamanho
-          </label>
-          <div className="flex gap-3 flex-wrap">
-            {[...sizes]
-              .sort(
-                (a, b) =>
-                  sizeOptions.indexOf(a.size) - sizeOptions.indexOf(b.size)
+          <div className="flex gap-2 flex-wrap">
+            {activeSizeOptions.map((size) => {
+              const hasSize = !!sizes.find((s) => s.size === size)
+              return (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => toggleSizeInclusion(size)}
+                  className={`w-12 h-12 rounded-xl font-bold transition-all border-2 text-sm cursor-pointer ${
+                    hasSize
+                      ? 'bg-brand-700 text-white border-brand-800 shadow-xs scale-105'
+                      : 'bg-white text-brand-900 border-brand-200 hover:bg-brand-50'
+                  }`}
+                >
+                  {size}
+                </button>
               )
-              .map((s) => (
+            })}
+          </div>
+        </div>
+
+        {/* Gerenciamento de Estoque por Tamanho */}
+        {sizes.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-brand-200/60">
+            <label className="block text-xs font-bold text-brand-900/80 mb-2.5">
+              Controle de Estoque dos Tamanhos Selecionados (Clique para
+              alternar):
+            </label>
+            <div className="flex gap-2.5 flex-wrap">
+              {sizes.map((s) => (
                 <button
                   key={s.size}
                   type="button"
                   onClick={() => toggleSizeStock(s.size)}
-                  className="flex items-center justify-between gap-4 bg-white px-4 py-2 rounded-lg shadow-sm border border-brand-100 min-w-[140px] hover:border-brand-300 hover:shadow-md transition-all cursor-pointer text-left group"
+                  className="flex items-center justify-between gap-3 bg-white px-3.5 py-2 rounded-xl shadow-2xs border border-brand-200 hover:border-brand-400 transition-all cursor-pointer text-left"
                 >
-                  <span className="font-bold text-brand-900">{s.size}</span>
+                  <span className="font-bold text-brand-900 text-sm">
+                    {s.size}
+                  </span>
                   <span
-                    className={`text-xs px-3 py-1.5 rounded-md font-medium transition-colors ${s.inStock ? 'bg-green-100 text-green-800 group-hover:bg-green-200' : 'bg-stone-200 text-stone-700 group-hover:bg-stone-300'}`}
+                    className={`text-[11px] px-2.5 py-1 rounded-md font-bold transition-colors ${
+                      s.inStock
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : 'bg-stone-200 text-stone-600'
+                    }`}
                   >
                     {s.inStock ? 'Em Estoque' : 'Esgotado'}
                   </span>
                 </button>
               ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
+      {/* SEÇÃO 4: GALERIA DE MÍDIAS (FOTOS E VÍDEOS) */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="block text-sm font-medium text-brand-800">
+          <label className="block text-sm font-bold text-brand-900">
             Galeria de Mídias (Fotos e Vídeos)
           </label>
-          <span className="text-xs text-brand-500">
+          <span className="text-xs bg-brand-100 text-brand-800 font-bold px-2.5 py-0.5 rounded-full">
             {media.length} {media.length === 1 ? 'mídia' : 'mídias'}
           </span>
         </div>
-        <p className="text-xs text-brand-500 mb-4">
+        <p className="text-xs text-brand-900/60 mb-4">
           A vitrine principal e o carrinho sempre utilizarão a primeira foto
           como capa estática. Ajuste os números de <strong>Ordem</strong> para
           organizar como fotos e vídeos aparecem na página da peça.
@@ -414,10 +846,10 @@ export function ProductForm({ initialData }: ProductFormProps) {
           })}
 
           {/* Botão de Upload de Foto */}
-          <label className="w-32 sm:w-36 h-48 flex flex-col items-center justify-center bg-brand-50 border-2 border-dashed border-brand-300 rounded-2xl cursor-pointer hover:bg-brand-100 transition-all text-brand-600 group p-3 text-center shadow-2xs">
+          <label className="w-32 sm:w-36 h-48 flex flex-col items-center justify-center bg-brand-50 border-2 border-dashed border-brand-300 rounded-2xl cursor-pointer hover:bg-brand-100 transition-all text-brand-700 group p-3 text-center shadow-2xs">
             <ImageIcon
               size={26}
-              className="group-hover:scale-110 transition-transform mb-1 text-brand-600"
+              className="group-hover:scale-110 transition-transform mb-1 text-brand-700"
             />
             <span className="text-xs font-bold leading-tight">
               + Adicionar Foto
@@ -457,20 +889,25 @@ export function ProductForm({ initialData }: ProductFormProps) {
         </div>
       </div>
 
+      {/* Botões de Ação do Formulário */}
       <div className="pt-6 border-t border-brand-100 flex justify-end gap-4 mt-8">
         <button
           type="button"
           onClick={() => router.push('/admin')}
-          className="px-6 py-3 text-brand-700 font-medium hover:bg-brand-50 rounded-lg transition-colors"
+          className="px-6 py-3 text-brand-800 font-medium hover:bg-brand-50 rounded-xl transition-colors cursor-pointer"
         >
           Cancelar
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="px-8 py-3 bg-brand-700 text-white font-medium rounded-lg hover:bg-brand-800 transition-colors shadow-sm disabled:opacity-50"
+          className="px-8 py-3 bg-brand-700 text-white font-bold rounded-xl hover:bg-brand-800 transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
         >
-          {loading ? 'Salvando...' : 'Salvar Produto'}
+          {loading
+            ? 'Salvando...'
+            : initialData
+              ? 'Salvar Alterações'
+              : 'Cadastrar Produto'}
         </button>
       </div>
     </form>

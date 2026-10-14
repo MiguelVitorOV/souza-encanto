@@ -64,15 +64,15 @@ Este plano de implementação organiza as novas entregas em fases atômicas, min
 
 **Foco:** Dar total autonomia ao lojista para gerenciar o novo catálogo.
 
-- [ ] **11.1 Gestão de Categorias de Tamanho (`/admin/tamanhos`):**
+- [x] **11.1 Gestão de Categorias de Tamanho (`/admin/tamanhos`):**
   - Listagem, criação e edição de grades de tamanho.
   - Campos: Nome da grade, chips de tamanhos incluídos (ex: 04, 06, 08, 10).
   - Editor de texto formatado para Tabela de Medidas e Descrição/Orientações com painel de **pré-visualização ao vivo**.
-- [ ] **11.2 Atualização do Formulário de Produtos (`ProductForm`):**
+- [x] **11.2 Atualização do Formulário de Produtos (`ProductForm`):**
   - Seleção múltipla de categorias de produto (chips ou checkboxes).
   - Seletor de Categoria de Tamanho (grade), com carregamento dinâmico dos tamanhos para marcação de presença e estoque.
   - Campos de Preço e Desconto com sincronização bidirecional em tempo real (digitar preço promocional calcula % de desconto, e digitar % calcula preço promocional).
-- [ ] **11.3 Navegação do Admin:** Atualizar `AdminHeader` incluindo a nova aba "Tamanhos / Medidas".
+- [x] **11.3 Navegação do Admin:** Atualizar `AdminHeader` incluindo a nova aba "Tamanhos / Medidas".
 
 ---
 
